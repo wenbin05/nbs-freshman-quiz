@@ -14,6 +14,7 @@ import {
   quizQuestions,
   resultProfiles,
 } from "./data/quiz";
+import SketchQuizApp from "./SketchQuizApp";
 import type {
   OptionId,
   OutcomeId,
@@ -583,7 +584,7 @@ function useSequencedTypewriter(
   return { visibleText, complete, isAnimated, skip };
 }
 
-function App() {
+function RpgQuizApp() {
   const [state, dispatch] = useReducer(quizReducer, undefined, createInitialState);
   const [awakeningVisible, setAwakeningVisible] = useState(false);
   const [introCanStart, setIntroCanStart] = useState(true);
@@ -2697,6 +2698,16 @@ function ResultScreen({
       </button>
     </HolographicPanel>
   );
+}
+
+function App() {
+  const theme = new URLSearchParams(window.location.search).get("theme");
+
+  if (theme === "rpg") {
+    return <RpgQuizApp />;
+  }
+
+  return <SketchQuizApp />;
 }
 
 export default App;
