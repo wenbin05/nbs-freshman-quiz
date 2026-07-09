@@ -3783,19 +3783,39 @@ body.is-threat-shaking .game-shell {
 }
 
 .sketch-prelude-copy {
-  animation: sketchQuestionCardIn 560ms cubic-bezier(0.2, 1, 0.22, 1) both;
+  animation: sketchPreludeCardIn 560ms cubic-bezier(0.2, 1, 0.22, 1) both;
   background: rgba(255, 250, 241, 0.9);
   border: 3px solid var(--sketch-ink);
   border-radius: 26px;
   box-shadow: 5px 6px 0 rgba(48, 52, 73, 0.14);
   color: var(--sketch-ink);
+  cursor: pointer;
   display: grid;
+  font: inherit;
   gap: 6px;
+  left: 50%;
   max-width: min(78%, 560px);
   padding: clamp(18px, 2.8vw, 30px);
   position: absolute;
   text-align: center;
+  top: 50%;
+  transform: translate(-50%, -50%);
   z-index: 8;
+}
+
+.sketch-prelude-copy.is-hologram {
+  background: rgba(239, 251, 255, 0.92);
+  border-color: #2d94a8;
+  box-shadow:
+    5px 6px 0 rgba(48, 52, 73, 0.12),
+    0 0 0 8px rgba(74, 178, 190, 0.08);
+  max-width: min(68%, 460px);
+  top: 50%;
+}
+
+.sketch-prelude-copy.is-blink {
+  max-width: min(64%, 430px);
+  top: 50%;
 }
 
 .sketch-prelude-copy.is-premise {
@@ -3820,6 +3840,75 @@ body.is-threat-shaking .game-shell {
 .sketch-prelude-copy strong {
   font-size: clamp(1.4rem, 3vw, 2.35rem);
   line-height: 1.05;
+  white-space: pre-line;
+}
+
+.sketch-prelude-copy small {
+  color: #666a80;
+  font-size: 0.72rem;
+  font-weight: 950;
+  justify-self: center;
+  margin-top: 4px;
+  text-transform: uppercase;
+}
+
+.sketch-prelude-atmosphere {
+  inset: 0;
+  pointer-events: none;
+  position: absolute;
+  z-index: 7;
+}
+
+.sketch-prelude-atmosphere.is-flicker {
+  animation: sketchPreludeFlicker 1400ms steps(2, end) infinite;
+  background:
+    linear-gradient(90deg, transparent, rgba(255, 250, 241, 0.28), transparent),
+    rgba(29, 34, 47, 0.08);
+}
+
+.sketch-prelude-atmosphere.is-hologram {
+  animation: sketchHologramSweep 1800ms ease-in-out infinite;
+  background:
+    linear-gradient(
+      180deg,
+      transparent 0%,
+      rgba(74, 178, 190, 0.12) 48%,
+      transparent 54%
+    ),
+    radial-gradient(circle at 52% 44%, rgba(74, 178, 190, 0.12), transparent 32%);
+}
+
+.sketch-prelude-atmosphere.is-blink {
+  animation: sketchSoftBlink 1100ms ease both;
+  background:
+    linear-gradient(180deg, rgba(29, 34, 47, 0.72), transparent 38%),
+    linear-gradient(0deg, rgba(29, 34, 47, 0.72), transparent 38%);
+}
+
+.sketch-blink-moment {
+  align-items: center;
+  animation: sketchBlinkText 900ms ease both;
+  background: transparent;
+  border: 0;
+  color: #ffffff;
+  cursor: pointer;
+  display: flex;
+  font: inherit;
+  inset: 0;
+  justify-content: center;
+  position: absolute;
+  text-align: center;
+  text-shadow: 0 2px 12px rgba(29, 34, 47, 0.45);
+  z-index: 9;
+}
+
+.sketch-blink-moment span {
+  background: rgba(29, 34, 47, 0.44);
+  border: 2px solid rgba(255, 250, 241, 0.78);
+  border-radius: 999px;
+  font-size: clamp(1.2rem, 2.4vw, 2.1rem);
+  font-weight: 950;
+  padding: 12px 24px;
 }
 
 .sketch-topbar span,
@@ -4222,6 +4311,231 @@ body.is-threat-shaking .game-shell {
   text-transform: uppercase;
 }
 
+.sketch-system-notice {
+  align-items: center;
+  animation: sketchFocusWashIn 180ms ease both;
+  background: rgba(255, 250, 241, 0.12);
+  cursor: pointer;
+  display: flex;
+  inset: 0;
+  justify-content: center;
+  padding: 32px;
+  pointer-events: auto;
+  position: absolute;
+  z-index: 32;
+}
+
+.sketch-system-notice-card {
+  animation: sketchNoticeCardIn 420ms cubic-bezier(0.2, 1, 0.22, 1) both;
+  background: rgba(255, 250, 241, 0.96);
+  border: 3px solid #2c2c2c;
+  border-radius: 18px;
+  box-shadow:
+    6px 7px 0 rgba(48, 52, 73, 0.16),
+    0 20px 40px rgba(48, 52, 73, 0.12);
+  color: var(--sketch-ink);
+  cursor: default;
+  display: grid;
+  gap: 7px;
+  max-width: min(74vw, 470px);
+  min-width: min(68vw, 330px);
+  padding: 20px 26px;
+  text-align: center;
+}
+
+.sketch-system-notice-card span {
+  color: #cc604b;
+  font-size: clamp(0.72rem, 1vw, 0.86rem);
+  font-weight: 950;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.sketch-system-notice-card strong {
+  color: #2c2c2c;
+  font-size: clamp(1.05rem, 1.9vw, 1.55rem);
+  line-height: 1.1;
+  text-wrap: balance;
+  white-space: pre-line;
+}
+
+.sketch-system-notice-card small {
+  color: #666a80;
+  font-size: 0.72rem;
+  font-weight: 950;
+  text-transform: uppercase;
+}
+
+.sketch-system-notice-card.has-title-only span {
+  color: #2c2c2c;
+  font-size: clamp(1.05rem, 1.9vw, 1.55rem);
+  line-height: 1.1;
+  text-transform: none;
+}
+
+.sketch-system-notice.is-info .sketch-system-notice-card {
+  background: rgba(239, 251, 255, 0.96);
+  border-color: #2d94a8;
+}
+
+.sketch-system-notice.is-info .sketch-system-notice-card span {
+  color: #248297;
+}
+
+.sketch-system-notice.is-event .sketch-system-notice-card {
+  background: rgba(255, 247, 219, 0.97);
+  border-color: #c7862e;
+}
+
+.sketch-system-notice.is-event .sketch-system-notice-card span {
+  color: #a7671d;
+}
+
+.sketch-system-notice.is-warning {
+  background: rgba(48, 26, 31, 0.22);
+}
+
+.sketch-system-notice.is-warning .sketch-system-notice-card {
+  animation:
+    sketchNoticeCardIn 420ms cubic-bezier(0.2, 1, 0.22, 1) both,
+    sketchWarningPulse 1100ms ease-in-out 260ms 2;
+  background: rgba(255, 237, 235, 0.97);
+  border-color: #c8463b;
+}
+
+.sketch-system-notice.is-warning .sketch-system-notice-card span,
+.sketch-system-notice.is-warning .sketch-system-notice-card strong {
+  color: #ad3229;
+}
+
+.sketch-visual-beats {
+  inset: 0;
+  pointer-events: none;
+  position: absolute;
+  z-index: 9;
+}
+
+.sketch-visual-beat {
+  align-items: stretch;
+  animation: sketchVisualBeatIn 520ms cubic-bezier(0.2, 1, 0.22, 1) both;
+  animation-delay: calc(var(--beat-index) * 260ms);
+  background: rgba(255, 250, 241, 0.95);
+  border: 2px solid var(--sketch-ink);
+  border-radius: 18px;
+  box-shadow: 4px 5px 0 rgba(48, 52, 73, 0.12);
+  color: var(--sketch-ink);
+  display: grid;
+  gap: 7px;
+  grid-template-rows: minmax(0, 58px) auto;
+  left: 8%;
+  min-height: 104px;
+  overflow: hidden;
+  padding: 7px 8px 9px;
+  position: absolute;
+  top: 2%;
+  width: min(21%, 214px);
+}
+
+.sketch-visual-beat:nth-child(2) {
+  left: 39.5%;
+  top: 3.4%;
+}
+
+.sketch-visual-beat:nth-child(3) {
+  left: auto;
+  right: 8%;
+  top: 2%;
+}
+
+.sketch-visual-beat img {
+  border: 2px solid rgba(48, 52, 73, 0.72);
+  border-radius: 12px;
+  display: block;
+  height: 100%;
+  object-fit: cover;
+  width: 100%;
+}
+
+.sketch-visual-beat strong,
+.sketch-visual-beat small {
+  display: block;
+  line-height: 1.08;
+}
+
+.sketch-visual-beat strong {
+  color: #2c2c2c;
+  font-size: clamp(0.72rem, 0.92vw, 0.86rem);
+  font-weight: 950;
+}
+
+.sketch-visual-beat small {
+  color: #666a80;
+  font-size: clamp(0.56rem, 0.7vw, 0.66rem);
+  font-weight: 850;
+  margin-top: 3px;
+}
+
+.sketch-notification-stack {
+  inset: 0;
+  pointer-events: none;
+  position: absolute;
+  z-index: 16;
+}
+
+.sketch-notification-stack i {
+  animation: sketchNotificationIn 460ms cubic-bezier(0.2, 1, 0.22, 1) both;
+  animation-delay: calc(var(--notice-index) * 150ms);
+  background: rgba(255, 246, 240, 0.96);
+  border: 2px solid #b9423a;
+  border-radius: 14px;
+  box-shadow: 4px 5px 0 rgba(48, 52, 73, 0.14);
+  color: #9e3029;
+  font-size: clamp(0.7rem, 1vw, 0.86rem);
+  font-style: normal;
+  font-weight: 950;
+  min-width: 138px;
+  padding: 10px 13px;
+  position: absolute;
+  text-align: center;
+}
+
+.sketch-notification-stack i::before {
+  background: #d94b3f;
+  border-radius: 999px;
+  content: "!";
+  color: #fff8ef;
+  display: inline-grid;
+  font-size: 0.72em;
+  height: 18px;
+  margin-right: 7px;
+  place-items: center;
+  width: 18px;
+}
+
+.sketch-notification-stack i:nth-child(1) {
+  left: 10%;
+  rotate: 2deg;
+  top: 7%;
+}
+
+.sketch-notification-stack i:nth-child(2) {
+  left: 31%;
+  rotate: -3deg;
+  top: 10%;
+}
+
+.sketch-notification-stack i:nth-child(3) {
+  right: 30%;
+  rotate: -2deg;
+  top: 7%;
+}
+
+.sketch-notification-stack i:nth-child(4) {
+  right: 8%;
+  rotate: 2deg;
+  top: 10%;
+}
+
 .sketch-option:disabled {
   cursor: default;
 }
@@ -4507,6 +4821,17 @@ body.is-threat-shaking .game-shell {
   }
 }
 
+@keyframes sketchPreludeCardIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, calc(-50% + 18px)) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
 @keyframes sketchPanelIn {
   from {
     opacity: 0;
@@ -4526,6 +4851,117 @@ body.is-threat-shaking .game-shell {
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes sketchPreludeFlicker {
+  0%,
+  100% {
+    opacity: 0.18;
+  }
+  45% {
+    opacity: 0.38;
+  }
+  52% {
+    opacity: 0.08;
+  }
+  58% {
+    opacity: 0.32;
+  }
+}
+
+@keyframes sketchHologramSweep {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: translateY(-10%);
+  }
+  50% {
+    opacity: 0.7;
+    transform: translateY(10%);
+  }
+}
+
+@keyframes sketchSoftBlink {
+  from {
+    opacity: 0.92;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes sketchNoticeCardIn {
+  0% {
+    opacity: 0;
+    transform: translateY(16px) scale(0.82) rotate(-2deg);
+  }
+  68% {
+    opacity: 1;
+    transform: translateY(-4px) scale(1.04) rotate(1deg);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1) rotate(0deg);
+  }
+}
+
+@keyframes sketchVisualBeatIn {
+  0% {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.88) rotate(-1deg);
+  }
+  70% {
+    opacity: 1;
+    transform: translateY(2px) scale(1.02) rotate(0.5deg);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1) rotate(0deg);
+  }
+}
+
+@keyframes sketchBlinkText {
+  0% {
+    filter: blur(4px);
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  45% {
+    filter: blur(0);
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    filter: blur(0);
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes sketchWarningPulse {
+  0%,
+  100% {
+    box-shadow:
+      6px 7px 0 rgba(48, 52, 73, 0.16),
+      0 20px 40px rgba(48, 52, 73, 0.12);
+  }
+  50% {
+    box-shadow:
+      6px 7px 0 rgba(48, 52, 73, 0.16),
+      0 0 0 8px rgba(200, 70, 59, 0.18),
+      0 24px 46px rgba(173, 50, 41, 0.22);
+  }
+}
+
+@keyframes sketchNotificationIn {
+  from {
+    opacity: 0;
+    transform: translateY(-12px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
   }
 }
 

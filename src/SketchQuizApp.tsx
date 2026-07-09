@@ -56,11 +56,127 @@ type SketchSceneConfig = {
   pane: "designer" | "custom";
 };
 
+type SketchNotice = {
+  body: string;
+  key: string;
+  kind: "event" | "info" | "warning";
+  title: string;
+  advanceOnClose?: boolean;
+};
+
+type SketchVisualBeat = {
+  detail: string;
+  image: string;
+  key: string;
+  title: string;
+  variant: "cheer" | "crowd" | "map" | "reroute" | "plaza" | "fair";
+};
+
+type SketchPreludeStep =
+  | {
+      body: string;
+      eyebrow: string;
+      foreground: string;
+      kind: "story";
+      showWelcomePane?: boolean;
+      tone?: "arrival" | "blink" | "flicker" | "hologram";
+    }
+  | {
+      autoAdvanceMs: number;
+      foreground: string;
+      kind: "notice";
+      notice: SketchNotice;
+      showWelcomePane?: boolean;
+      tone?: "flicker" | "hologram";
+    };
+
 const startLayers = ["img_3686.png"];
 const resultLayers = ["img_3713.png"];
 const calculationDelayMs = 1250;
-const sceneIntroDelayMs = 2200;
 const optionRevealDelayMs = 400;
+
+const sketchPreludeSteps: SketchPreludeStep[] = [
+  {
+    body: "It's your first week at NBS.\nYou walk into WCY Plaza to find your orientation room.",
+    eyebrow: "First Week",
+    foreground: "img_3687.png",
+    kind: "story",
+    tone: "arrival",
+  },
+  {
+    body: "The air feels juuust slightly off.\nThe lights flicker.",
+    eyebrow: "Signal Shift",
+    foreground: "img_3687.png",
+    kind: "story",
+    tone: "flicker",
+  },
+  {
+    autoAdvanceMs: 1700,
+    foreground: "img_3689.png",
+    kind: "notice",
+    notice: {
+      body: "",
+      key: "prelude-system-update",
+      kind: "info",
+      title: "System update in progress.",
+    },
+    showWelcomePane: true,
+    tone: "hologram",
+  },
+  {
+    autoAdvanceMs: 2300,
+    foreground: "img_3689.png",
+    kind: "notice",
+    notice: {
+      body: "The Freshman Arc has begun.",
+      key: "prelude-welcome",
+      kind: "info",
+      title: "Welcome, Player.",
+    },
+    showWelcomePane: true,
+    tone: "hologram",
+  },
+  {
+    autoAdvanceMs: 2300,
+    foreground: "img_3689.png",
+    kind: "notice",
+    notice: {
+      body: "Complete events to determine your build.",
+      key: "prelude-quest-log",
+      kind: "event",
+      title: "Quest Log Updated",
+    },
+    showWelcomePane: true,
+    tone: "hologram",
+  },
+  {
+    body: "",
+    eyebrow: "Blink",
+    foreground: "img_3687.png",
+    kind: "story",
+    tone: "blink",
+  },
+  {
+    body: "...Did I just get isekai'd into NBS?",
+    eyebrow: "Reality Check",
+    foreground: "img_3687.png",
+    kind: "story",
+    tone: "arrival",
+  },
+  {
+    autoAdvanceMs: 2400,
+    foreground: "img_3689.png",
+    kind: "notice",
+    notice: {
+      body: "Attend The Orientation.",
+      key: "prelude-orientation-objective",
+      kind: "event",
+      title: "New Objective Unlocked",
+    },
+    showWelcomePane: true,
+    tone: "hologram",
+  },
+];
 
 let sketchAudioContext: AudioContext | null = null;
 
@@ -286,52 +402,277 @@ function getSketchDialogueBeats(question: (typeof quizQuestions)[number]) {
       return [cleanText(`${question.scenario}\n\n${prompt}`)];
     case "orientation-arena":
       return [
-        "You enter WCY Plaza and suddenly observe:\nLoud cheers\nSeniors hyping the crowd\nFriend groups forming in real time.",
-        cleanText(`You’ve entered the Orientation Arena.\n\n${prompt}`),
+        "You enter WCY Plaza and suddenly observe:",
+        "Loud cheers.",
+        "Seniors hyping the crowd.",
+        "Friend groups forming in real time.",
+        "You’ve entered the Orientation Arena.",
+        cleanText(
+          `The Orientation Arena is active.\nThe cheers, hype, and instant friend groups are still moving around you.\n\n${prompt}`,
+        ),
       ];
     case "finding-your-class":
       return [
-        "You blink—\nand you're back at the WCY Plaza entrance again.",
+        "You blink.\nand you're back at the WCY Plaza entrance again.",
+        "You start walking.\nLeft turn. Right turn. Another corridor. You are unable to find your class.",
         cleanText(
-          `You start walking.\nLeft turn. Right turn. Another corridor. You are unable to find your class.\n\n${prompt}`,
+          `You are still at WCY Plaza, class is starting soon, and every corridor looks suspiciously similar.\n\n${prompt}`,
         ),
       ];
     case "group-project":
       return [
         "You finally reach the classroom.\nThe prof says:\n“Form groups.”",
         "It happens instantly. People cluster like they planned for this before class.\nYou’re in a group chat now:\n“Biz Case grp 3”",
-        cleanText(`No one says anything.\n\n${prompt}`),
+        cleanText(
+          `No one says anything.\nBiz Case grp 3 is open, silent, and somehow already stressful.\n\n${prompt}`,
+        ),
       ];
     case "cca-fair":
       return [
-        "Class ends.\nYou try to leave campus,\nYou think you’re finally done.\nthe game: lol no",
-        "Your path automatically reroutes.\nYou find yourself back in WCY Plaza. Yet again.",
+        "Class ends.\nYou try to leave campus.\nYou think you’re finally done, but your path automatically reroutes.",
+        "You find yourself back in WCY Plaza. Yet again.",
         "But this time, your surroundings are louder.\nSomeone hands you a tote bag. Another person pitches you an offer before you can react.",
-        cleanText(`You didn’t plan for this.\n\n${prompt}`),
+        cleanText(
+          `You didn’t plan for this CCA Fair detour, but the booths are closing in.\n\n${prompt}`,
+        ),
       ];
     case "burnout-monster":
       return [
         "The environment suddenly darkens.",
-        "Notifications start stacking:\ndeadlines\nmeetings\nunread messages\n“are you free?” (you are not)",
-        "It doesn’t stop.\nThen:\nWARNING: SYSTEM OVERLOAD",
-        "A figure forms.\nThe Burnout Monster has spawned.",
-        cleanText(`You are not prepared.\n\n${prompt}`),
+        "Your phone keeps lighting up.\nAlerts stack at the corners of your vision.",
+        "It doesn’t stop.",
+        "A figure forms.",
+        cleanText(
+          `You are not prepared.\nThe Burnout Monster is in front of you, and the alerts are still stacking.\n\n${prompt}`,
+        ),
       ];
     case "finals-mode":
       return [
         "The notifications start slowing down. The monster finally disappears.\nSilence.",
-        "Then, before you can catch a break:\n“FINALS IN 14 DAYS.”",
+        "Then, before you can catch a break.",
         "Time speeds up.\nDays feel shorter.",
-        cleanText(`You check the calendar.\n\n${prompt}`),
+        cleanText(
+          `You check the calendar.\nFinals are now close enough to stare back.\n\n${prompt}`,
+        ),
       ];
     case "weekend-portal":
       return [
-        "A glowing portal opens in front of you.\n“WEEKEND INSTANCE AVAILABLE (48 HOURS ONLY)”",
-        cleanText(`System warning appears:\n“ALERT: TIME RESOURCE MUST BE ALLOCATED”\n\n${prompt}`),
+        "A glowing portal opens in front of you.",
+        cleanText(
+          `The weekend portal is open, but only for 48 hours.\n\n${prompt}`,
+        ),
       ];
     default:
       return [cleanText(`${question.scenario}\n\n${prompt}`)];
   }
+}
+
+function getSketchNotice(
+  questionId: (typeof quizQuestions)[number]["id"],
+  beatIndex: number,
+): SketchNotice | null {
+  switch (questionId) {
+    case "orientation-arena":
+      return beatIndex === 4
+        ? {
+            advanceOnClose: true,
+            body: "Difficulty: ???",
+            key: "orientation-event",
+            kind: "event",
+            title: "Event: The Orientation",
+          }
+        : null;
+    case "finding-your-class":
+      if (beatIndex === 0) {
+        return {
+          advanceOnClose: true,
+          body: "Attend Your First Class.",
+          key: "class-objective",
+          kind: "info",
+          title: "New Objective Unlocked",
+        };
+      }
+
+      return beatIndex === 1
+        ? {
+            advanceOnClose: true,
+            body: "Find your first class before lecture starts.",
+            key: "navigation-challenge",
+            kind: "event",
+            title: "NAVIGATION CHALLENGE INITIATED",
+          }
+        : null;
+    case "group-project":
+      return beatIndex === 0
+        ? {
+            body: "Team dynamics unknown.",
+            key: "group-project-event",
+            kind: "event",
+            title: "Event: Group Project",
+          }
+        : null;
+    case "cca-fair":
+      return beatIndex === 2
+        ? {
+            advanceOnClose: true,
+            body: "Optional commitments detected.",
+            key: "cca-fair-event",
+            kind: "event",
+            title: "Event: The CCA Fair",
+          }
+        : null;
+    case "burnout-monster":
+      if (beatIndex === 2) {
+        return {
+          advanceOnClose: true,
+          body: "Stress meter exceeding recommended limits.",
+          key: "system-overload",
+          kind: "warning",
+          title: "WARNING: SYSTEM OVERLOAD",
+        };
+      }
+
+      return beatIndex === 3
+        ? {
+            advanceOnClose: true,
+            body: "Boss encounter initiated.",
+            key: "burnout-monster-alert",
+            kind: "warning",
+            title: "The Burnout Monster has spawned",
+          }
+        : null;
+    case "finals-mode":
+      return beatIndex === 1
+        ? {
+            advanceOnClose: true,
+            body: "Revision timer activated.",
+            key: "finals-warning",
+            kind: "warning",
+            title: "FINALS IN 14 DAYS",
+          }
+        : null;
+    case "weekend-portal":
+      if (beatIndex === 0) {
+        return {
+          advanceOnClose: true,
+          body: "(48 HOURS ONLY)",
+          key: "weekend-instance",
+          kind: "event",
+          title: "WEEKEND INSTANCE AVAILABLE",
+        };
+      }
+
+      return beatIndex === 1
+        ? {
+            body: "",
+            key: "weekend-alert",
+            kind: "warning",
+            title: "ALERT: TIME RESOURCE MUST BE ALLOCATED",
+          }
+        : null;
+    default:
+      return null;
+  }
+}
+
+function getSketchVisualBeats(
+  questionId: (typeof quizQuestions)[number]["id"],
+  beatIndex: number,
+  isCurrentBeatComplete: boolean,
+): SketchVisualBeat[] {
+  if (questionId === "orientation-arena") {
+    const orientationBeats: SketchVisualBeat[] = [
+      {
+        detail: "Sound waves fill WCY Plaza.",
+        image: "generated/story-loud-cheers.png",
+        key: "loud-cheers",
+        title: "Loud cheers",
+        variant: "cheer",
+      },
+      {
+        detail: "Seniors rally the crowd.",
+        image: "generated/story-senior-hype.png",
+        key: "senior-hype",
+        title: "Seniors hyping the crowd",
+        variant: "crowd",
+      },
+      {
+        detail: "Groups form in real time.",
+        image: "generated/story-friend-groups.png",
+        key: "friend-groups",
+        title: "Friend groups forming",
+        variant: "crowd",
+      },
+    ];
+
+    if (beatIndex <= 0) {
+      return [];
+    }
+
+    const completedVisualCount = Math.min(3, beatIndex - 1);
+    const currentVisualCount =
+      beatIndex >= 1 && beatIndex <= 3 && isCurrentBeatComplete ? 1 : 0;
+    const revealCount =
+      beatIndex >= 4 ? 3 : completedVisualCount + currentVisualCount;
+
+    return orientationBeats.slice(0, revealCount);
+  }
+
+  if (questionId === "finding-your-class" && beatIndex === 1) {
+    return isCurrentBeatComplete
+      ? [
+      {
+        detail: "The map insists you are both close and lost.",
+        image: "generated/story-reroute.png",
+        key: "map-loop",
+        title: "Route recalculating",
+        variant: "map",
+      },
+        ]
+      : [];
+  }
+
+  if (questionId === "cca-fair") {
+    const ccaBeats: SketchVisualBeat[] = [
+      {
+        detail: "Exit route bends back toward the plaza.",
+        image: "generated/story-reroute.png",
+        key: "reroute-path",
+        title: "Path reroutes",
+        variant: "reroute",
+      },
+      {
+        detail: "Same plaza. Somehow louder.",
+        image: "generated/story-back-plaza.png",
+        key: "back-to-plaza",
+        title: "Back at WCY Plaza",
+        variant: "plaza",
+      },
+      {
+        detail: "A tote bag appears in your hands.",
+        image: "generated/story-cca-fair.png",
+        key: "tote-bag",
+        title: "Freebies acquired",
+        variant: "fair",
+      },
+    ];
+
+    if (beatIndex === 0) {
+      return isCurrentBeatComplete ? ccaBeats.slice(0, 1) : [];
+    }
+
+    if (beatIndex === 1) {
+      return ccaBeats.slice(0, isCurrentBeatComplete ? 2 : 1);
+    }
+
+    if (beatIndex === 2) {
+      return ccaBeats.slice(0, isCurrentBeatComplete ? 3 : 2);
+    }
+
+    return ccaBeats;
+  }
+
+  return [];
 }
 
 function getSketchForegroundAssets(
@@ -566,22 +907,32 @@ function SketchStartScreen({ onStart }: { onStart: () => void }) {
 
 function SketchPreludeScreen({ onComplete }: { onComplete: () => void }) {
   const [step, setStep] = useState(0);
-  const isWelcome = step === 1;
+  const currentStep = sketchPreludeSteps[step] ?? sketchPreludeSteps[0];
+  const showWelcomePane = Boolean(currentStep.showWelcomePane);
+  const toneClass = currentStep.tone ? `is-${currentStep.tone}` : "";
+
+  const advancePrelude = useCallback(() => {
+    if (step >= sketchPreludeSteps.length - 1) {
+      onComplete();
+      return;
+    }
+
+    setStep((currentStepIndex) => currentStepIndex + 1);
+  }, [onComplete, step]);
 
   useEffect(() => {
     playSketchSceneSound(step);
 
-    const timeout = window.setTimeout(() => {
-      if (step === 0) {
-        setStep(1);
-        return;
-      }
+    if (currentStep.kind !== "notice") {
+      return;
+    }
 
-      onComplete();
-    }, step === 0 ? 2400 : 2600);
+    const timeout = window.setTimeout(() => {
+      advancePrelude();
+    }, currentStep.autoAdvanceMs);
 
     return () => window.clearTimeout(timeout);
-  }, [onComplete, step]);
+  }, [advancePrelude, currentStep, step]);
 
   return (
     <>
@@ -591,7 +942,7 @@ function SketchPreludeScreen({ onComplete }: { onComplete: () => void }) {
           className="designer-layer"
           src={`${designerAsset}img_3686.png`}
         />
-        {isWelcome && (
+        {showWelcomePane && (
           <img
             alt=""
             className="designer-layer designer-layer-welcome-pane"
@@ -604,16 +955,46 @@ function SketchPreludeScreen({ onComplete }: { onComplete: () => void }) {
         <img
           alt=""
           className="designer-layer designer-foreground-full"
-          src={`${designerAsset}${isWelcome ? "img_3689.png" : "img_3687.png"}`}
+          src={`${designerAsset}${currentStep.foreground}`}
         />
       </div>
 
-      {!isWelcome && (
-        <div className="sketch-prelude-copy is-premise">
-          <span>...</span>
-          <strong>Did I just get isekai'd into NBS?</strong>
-        </div>
+      {currentStep.tone && (
+        <div
+          className={`sketch-prelude-atmosphere ${toneClass}`}
+          aria-hidden="true"
+        />
       )}
+
+      {currentStep.kind === "story" && currentStep.tone === "blink" && (
+        <button
+          className="sketch-blink-moment"
+          onClick={advancePrelude}
+          type="button"
+        >
+          <span>You blink.</span>
+        </button>
+      )}
+
+      {currentStep.kind === "story" && currentStep.tone !== "blink" && (
+        <button
+          className={`sketch-prelude-copy ${toneClass}`}
+          onClick={advancePrelude}
+          type="button"
+        >
+          <span>{currentStep.eyebrow}</span>
+          <strong>{currentStep.body}</strong>
+          <small>Tap to continue</small>
+        </button>
+      )}
+
+      {currentStep.kind === "notice" && (
+        <SketchSystemNotice
+          notice={currentStep.notice}
+          onClose={advancePrelude}
+        />
+      )}
+
     </>
   );
 }
@@ -629,10 +1010,13 @@ function SketchQuestionScreen({
   onAnswer: (option: QuizOption) => void;
   question: (typeof quizQuestions)[number];
 }) {
-  const [sceneIntroVisible, setSceneIntroVisible] = useState(true);
+  const [sceneIntroVisible, setSceneIntroVisible] = useState(false);
   const [beatIndex, setBeatIndex] = useState(0);
   const [optionsVisible, setOptionsVisible] = useState(false);
   const [groupChatOpen, setGroupChatOpen] = useState(false);
+  const [acknowledgedNoticeKey, setAcknowledgedNoticeKey] = useState<
+    string | null
+  >(null);
   const dialogueBeats = useMemo(() => getSketchDialogueBeats(question), [question]);
   const currentBeatText = dialogueBeats[beatIndex] ?? dialogueBeats[0] ?? "";
   const isFinalBeat = beatIndex >= dialogueBeats.length - 1;
@@ -653,29 +1037,55 @@ function SketchQuestionScreen({
     ],
     [beatIndex, question.id, scene.foreground],
   );
-  const questionTitle = cleanText(question.title);
-  const questionName = cleanText(question.title.replace(/^Q\d+\.\s*/, ""));
   const optionsActive = isFinalBeat && optionsVisible;
+  const beatNotice = useMemo(
+    () => getSketchNotice(question.id, beatIndex),
+    [beatIndex, question.id],
+  );
+  const activeNotice =
+    !sceneIntroVisible &&
+    !isTyping &&
+    beatNotice &&
+    acknowledgedNoticeKey !== beatNotice.key
+      ? beatNotice
+      : null;
+  const showBurnoutNotifications =
+    question.id === "burnout-monster" &&
+    !sceneIntroVisible &&
+    beatIndex >= 1 &&
+    beatIndex <= 3;
+  const visualBeats = getSketchVisualBeats(question.id, beatIndex, !isTyping);
 
   useEffect(() => {
-    setSceneIntroVisible(true);
+    setSceneIntroVisible(false);
     setBeatIndex(0);
     setOptionsVisible(false);
     setGroupChatOpen(false);
+    setAcknowledgedNoticeKey(null);
     playSketchSceneSound(currentIndex);
-
-    const timeout = window.setTimeout(() => {
-      setSceneIntroVisible(false);
-    }, sceneIntroDelayMs);
-
-    return () => window.clearTimeout(timeout);
   }, [currentIndex, question.id]);
+
+  useEffect(() => {
+    setAcknowledgedNoticeKey(null);
+  }, [beatIndex, question.id]);
 
   useEffect(() => {
     if (!showGroupChatTrigger) {
       setGroupChatOpen(false);
     }
   }, [showGroupChatTrigger]);
+
+  const handleNoticeClose = useCallback(() => {
+    if (!activeNotice) {
+      return;
+    }
+
+    setAcknowledgedNoticeKey(activeNotice.key);
+
+    if (activeNotice.advanceOnClose && !isFinalBeat) {
+      setBeatIndex((index) => index + 1);
+    }
+  }, [activeNotice, isFinalBeat]);
 
   useEffect(() => {
     if (!groupChatOpen) {
@@ -694,6 +1104,26 @@ function SketchQuestionScreen({
   }, [groupChatOpen]);
 
   useEffect(() => {
+    if (!activeNotice) {
+      return;
+    }
+
+    playSketchSceneSound(activeNotice.kind === "warning" ? 6 : 2);
+  }, [activeNotice]);
+
+  useEffect(() => {
+    if (!activeNotice) {
+      return;
+    }
+
+    const timeout = window.setTimeout(() => {
+      handleNoticeClose();
+    }, activeNotice.kind === "warning" ? 2500 : 2100);
+
+    return () => window.clearTimeout(timeout);
+  }, [activeNotice, handleNoticeClose]);
+
+  useEffect(() => {
     if (sceneIntroVisible) {
       return;
     }
@@ -708,12 +1138,24 @@ function SketchQuestionScreen({
       return;
     }
 
+    if (beatNotice && acknowledgedNoticeKey !== beatNotice.key) {
+      return;
+    }
+
     const timeout = window.setTimeout(() => {
       setOptionsVisible(true);
     }, optionRevealDelayMs);
 
     return () => window.clearTimeout(timeout);
-  }, [beatIndex, isFinalBeat, isTyping, question.id, sceneIntroVisible]);
+  }, [
+    acknowledgedNoticeKey,
+    beatIndex,
+    beatNotice,
+    isFinalBeat,
+    isTyping,
+    question.id,
+    sceneIntroVisible,
+  ]);
 
   const handleDialogueClick = () => {
     if (sceneIntroVisible) {
@@ -721,6 +1163,10 @@ function SketchQuestionScreen({
     }
 
     if (isTyping) {
+      return;
+    }
+
+    if (activeNotice) {
       return;
     }
 
@@ -736,7 +1182,7 @@ function SketchQuestionScreen({
         <div className="sketch-quiz-layer is-scene-preview" aria-live="polite">
           <div className="sketch-scene-card">
             <span>Scene {currentIndex + 1}</span>
-            <strong>{questionName}</strong>
+            <strong>{cleanText(question.title.replace(/^Q\d+\.\s*/, ""))}</strong>
           </div>
         </div>
       </>
@@ -747,6 +1193,10 @@ function SketchQuestionScreen({
     <>
       <SketchSceneLayers foreground={foregroundAssets} layers={scene.layers} />
       <div className="sketch-focus-wash" aria-hidden="true" />
+
+      {visualBeats.length > 0 && <SketchVisualBeatLayer beats={visualBeats} />}
+
+      {showBurnoutNotifications && <SketchNotificationStack />}
 
       {showGroupChatTrigger && (
         <button
@@ -784,15 +1234,13 @@ function SketchQuestionScreen({
         </div>
       )}
 
+      {activeNotice && (
+        <SketchSystemNotice notice={activeNotice} onClose={handleNoticeClose} />
+      )}
+
       <div className="sketch-quiz-layer">
         <div className="sketch-topbar">
           <span>{`${currentIndex + 1}/${quizQuestions.length}`}</span>
-        </div>
-
-        <div className="sketch-quest-strip" aria-label="Quiz progress">
-          <span>Journey Log</span>
-          <strong>{questionName}</strong>
-          <small>{completedCount} choices saved</small>
         </div>
 
         <section
@@ -804,13 +1252,12 @@ function SketchQuestionScreen({
             type="button"
             aria-label={
               isTyping
-                ? questionTitle
+                ? "Story text is typing"
                 : isFinalBeat
-                  ? questionTitle
+                  ? "Choose an option"
                   : "Continue dialogue"
             }
           >
-            <span>{questionTitle}</span>
             <pre>
               {visibleText}
               {isTyping && <i aria-hidden="true">|</i>}
@@ -841,6 +1288,77 @@ function SketchQuestionScreen({
         </section>
       </div>
     </>
+  );
+}
+
+function SketchVisualBeatLayer({ beats }: { beats: SketchVisualBeat[] }) {
+  return (
+    <div className="sketch-visual-beats" aria-hidden="true">
+      {beats.map((beat, index) => (
+        <article
+          className={`sketch-visual-beat is-${beat.variant}`}
+          key={beat.key}
+          style={{ "--beat-index": index } as CSSProperties}
+        >
+          <img alt="" src={`${designerAsset}${beat.image}`} />
+          <div>
+            <strong>{beat.title}</strong>
+            <small>{beat.detail}</small>
+          </div>
+        </article>
+      ))}
+    </div>
+  );
+}
+
+function SketchSystemNotice({
+  notice,
+  onClose,
+}: {
+  notice: SketchNotice;
+  onClose: () => void;
+}) {
+  return (
+    <div
+      className={`sketch-system-notice is-${notice.kind}`}
+      role="dialog"
+      aria-modal="true"
+      aria-label={notice.title}
+      onClick={onClose}
+    >
+      <div
+        className={`sketch-system-notice-card ${
+          notice.body ? "" : "has-title-only"
+        }`}
+        onClick={(event) => event.stopPropagation()}
+        role="document"
+      >
+        <span>{notice.title}</span>
+        {notice.body && <strong>{notice.body}</strong>}
+      </div>
+    </div>
+  );
+}
+
+function SketchNotificationStack() {
+  const notifications = [
+    "Deadline due",
+    "Meeting invite",
+    "Unread messages",
+    "Are you free?",
+  ];
+
+  return (
+    <div className="sketch-notification-stack" aria-hidden="true">
+      {notifications.map((notification, index) => (
+        <i
+          key={notification}
+          style={{ "--notice-index": index } as CSSProperties}
+        >
+          {notification}
+        </i>
+      ))}
+    </div>
   );
 }
 
