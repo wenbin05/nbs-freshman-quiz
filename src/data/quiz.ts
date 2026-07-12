@@ -229,7 +229,7 @@ export const quizQuestions: QuizQuestion[] = [
         id: "cca-fair-event",
         kind: "event",
         title: "Event: The CCA Fair",
-        message: "Optional commitments detected.",
+        message: "Survive CCA Fair",
       },
     ],
     options: [

@@ -3792,10 +3792,10 @@ body.is-threat-shaking .game-shell {
   cursor: pointer;
   display: grid;
   font: inherit;
-  gap: 6px;
+  gap: 12px;
   left: 50%;
-  max-width: min(78%, 560px);
-  padding: clamp(18px, 2.8vw, 30px);
+  max-width: min(82%, 720px);
+  padding: clamp(22px, 3vw, 34px);
   position: absolute;
   text-align: center;
   top: 50%;
@@ -3838,8 +3838,11 @@ body.is-threat-shaking .game-shell {
 }
 
 .sketch-prelude-copy strong {
-  font-size: clamp(1.4rem, 3vw, 2.35rem);
-  line-height: 1.05;
+  font-family: "Silkscreen", "Courier New", monospace;
+  font-size: clamp(0.88rem, 1.15vw, 1.1rem);
+  font-weight: 400;
+  line-height: 1.65;
+  text-wrap: balance;
   white-space: pre-line;
 }
 
@@ -3868,14 +3871,23 @@ body.is-threat-shaking .game-shell {
 
 .sketch-prelude-atmosphere.is-hologram {
   animation: sketchHologramSweep 1800ms ease-in-out infinite;
+  bottom: auto;
   background:
     linear-gradient(
       180deg,
-      transparent 0%,
-      rgba(74, 178, 190, 0.12) 48%,
-      transparent 54%
+      transparent 12%,
+      rgba(74, 178, 190, 0.06) 28%,
+      rgba(74, 178, 190, 0.2) 48%,
+      rgba(74, 178, 190, 0.06) 68%,
+      transparent 86%
     ),
-    radial-gradient(circle at 52% 44%, rgba(74, 178, 190, 0.12), transparent 32%);
+    radial-gradient(
+      ellipse at 50% 44%,
+      rgba(74, 178, 190, 0.2),
+      transparent 58%
+    );
+  height: 150px;
+  top: 0;
 }
 
 .sketch-prelude-atmosphere.is-blink {
@@ -4061,40 +4073,48 @@ body.is-threat-shaking .game-shell {
 }
 
 .sketch-question-card {
-  animation: sketchQuestionCardIn 560ms cubic-bezier(0.2, 1, 0.22, 1) both;
+  animation: sketchQuestionCardFadeIn 420ms ease both;
   background: transparent;
   border: 0;
   border-radius: 0;
   box-shadow: none;
   display: grid;
   gap: 18px;
-  grid-template-rows: 52% minmax(0, 1fr);
-  height: 77%;
+  grid-template-rows: auto;
+  height: auto;
   left: 8%;
   margin-top: 0;
-  max-height: 520px;
+  max-height: 86%;
   max-width: none;
-  min-height: 250px;
+  min-height: 0;
   overflow: visible;
   padding: 0;
   pointer-events: auto;
   position: absolute;
-  bottom: 4.75%;
+  bottom: auto;
+  top: 22%;
   width: 76%;
   z-index: 10;
 }
 
-.sketch-question-card.has-options {
+.sketch-question-card.is-choice-phase {
   grid-template-columns: 1fr;
   grid-template-rows: 52% minmax(0, 1fr);
+  height: 72%;
+  min-height: 250px;
 }
 
-.sketch-question-card.has-options .sketch-dialogue {
+.sketch-question-card.is-choice-phase .sketch-dialogue {
+  height: 100%;
   min-height: 0;
 }
 
-.sketch-question-card.has-options .sketch-options {
+.sketch-question-card.is-choice-phase .sketch-options {
   align-self: stretch;
+}
+
+.sketch-question-card.is-story-phase .sketch-options {
+  display: none;
 }
 
 .sketch-q-4 .sketch-question-card {
@@ -4126,12 +4146,33 @@ body.is-threat-shaking .game-shell {
   cursor: pointer;
   display: grid;
   filter: drop-shadow(5px 7px 0 rgba(48, 52, 73, 0.1));
-  height: 100%;
-  min-height: 0;
+  height: auto;
+  min-height: 158px;
   max-width: 790px;
   padding: 34px 46px;
   text-align: left;
   width: 100%;
+}
+
+.sketch-dialogue-content {
+  align-self: stretch;
+  display: grid;
+  gap: 14px;
+  min-height: 0;
+}
+
+.sketch-dialogue-copy {
+  display: grid;
+  min-height: 0;
+}
+
+.sketch-dialogue-copy > pre {
+  grid-area: 1 / 1;
+}
+
+.sketch-dialogue-measure {
+  pointer-events: none;
+  visibility: hidden;
 }
 
 .sketch-dialogue > span {
@@ -4148,12 +4189,46 @@ body.is-threat-shaking .game-shell {
   font: inherit;
   font-size: clamp(0.95rem, 1.05vw, 1.12rem);
   font-weight: 900;
-  line-height: 1.24;
+  line-height: 1.42;
   margin: 0;
   max-height: 100%;
   overflow: visible;
   overflow-wrap: break-word;
   white-space: pre-wrap;
+}
+
+.sketch-dialogue-visuals {
+  align-self: end;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: 0;
+  min-height: 0;
+  width: 100%;
+}
+
+.sketch-dialogue-visual {
+  aspect-ratio: 16 / 9;
+  margin: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.sketch-dialogue-visual.has-image {
+  animation: sketchVisualBeatIn 520ms cubic-bezier(0.2, 1, 0.22, 1) both;
+  animation-delay: calc(var(--beat-index) * 180ms);
+  background: rgba(255, 250, 241, 0.72);
+  border: 2px solid rgba(48, 52, 73, 0.72);
+  border-radius: 12px;
+  box-shadow: 3px 4px 0 rgba(48, 52, 73, 0.1);
+}
+
+.sketch-dialogue-visual img {
+  aspect-ratio: 16 / 9;
+  display: block;
+  height: 100%;
+  object-fit: cover;
+  width: 100%;
 }
 
 .sketch-dialogue pre i {
@@ -4170,6 +4245,11 @@ body.is-threat-shaking .game-shell {
   justify-self: end;
   margin-top: 8px;
   text-transform: uppercase;
+}
+
+.sketch-dialogue small.is-continue-cue,
+.sketch-prelude-copy small {
+  animation: sketchContinueCue 1100ms steps(2, end) infinite;
 }
 
 .sketch-options {
@@ -4312,15 +4392,15 @@ body.is-threat-shaking .game-shell {
 }
 
 .sketch-system-notice {
-  align-items: center;
-  animation: sketchFocusWashIn 180ms ease both;
-  background: rgba(255, 250, 241, 0.12);
-  cursor: pointer;
+  align-items: flex-start;
+  animation: sketchNoticeLifecycle var(--notice-duration, 3800ms) ease both;
+  background: transparent;
+  cursor: default;
   display: flex;
   inset: 0;
   justify-content: center;
-  padding: 32px;
-  pointer-events: auto;
+  padding: 24px 32px;
+  pointer-events: none;
   position: absolute;
   z-index: 32;
 }
@@ -4337,9 +4417,9 @@ body.is-threat-shaking .game-shell {
   cursor: default;
   display: grid;
   gap: 7px;
-  max-width: min(74vw, 470px);
-  min-width: min(68vw, 330px);
-  padding: 20px 26px;
+  max-width: min(68vw, 450px);
+  min-width: min(54vw, 310px);
+  padding: 16px 22px;
   text-align: center;
 }
 
@@ -4357,6 +4437,12 @@ body.is-threat-shaking .game-shell {
   line-height: 1.1;
   text-wrap: balance;
   white-space: pre-line;
+}
+
+.sketch-system-notice-card span,
+.sketch-system-notice-card strong {
+  font-family: "Silkscreen", "Courier New", monospace;
+  font-weight: 400;
 }
 
 .sketch-system-notice-card small {
@@ -4392,7 +4478,7 @@ body.is-threat-shaking .game-shell {
 }
 
 .sketch-system-notice.is-warning {
-  background: rgba(48, 26, 31, 0.22);
+  background: transparent;
 }
 
 .sketch-system-notice.is-warning .sketch-system-notice-card {
@@ -4513,27 +4599,27 @@ body.is-threat-shaking .game-shell {
 }
 
 .sketch-notification-stack i:nth-child(1) {
-  left: 10%;
+  left: 2%;
   rotate: 2deg;
-  top: 7%;
+  top: 6%;
 }
 
 .sketch-notification-stack i:nth-child(2) {
-  left: 31%;
+  left: 2%;
   rotate: -3deg;
-  top: 10%;
+  top: 14%;
 }
 
 .sketch-notification-stack i:nth-child(3) {
-  right: 30%;
+  right: 2%;
   rotate: -2deg;
-  top: 7%;
+  top: 6%;
 }
 
 .sketch-notification-stack i:nth-child(4) {
-  right: 8%;
+  right: 2%;
   rotate: 2deg;
-  top: 10%;
+  top: 14%;
 }
 
 .sketch-option:disabled {
@@ -4567,9 +4653,9 @@ body.is-threat-shaking .game-shell {
 .sketch-result-card {
   animation: sketchPanelIn 420ms ease both;
   display: grid;
-  gap: 14px;
+  gap: 11px;
   left: 50%;
-  max-height: min(80vh, 720px);
+  max-height: calc(100% - 28px);
   overflow: auto;
   padding: clamp(18px, 3vw, 30px);
   position: absolute;
@@ -4821,6 +4907,15 @@ body.is-threat-shaking .game-shell {
   }
 }
 
+@keyframes sketchQuestionCardFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
 @keyframes sketchPreludeCardIn {
   from {
     opacity: 0;
@@ -4906,6 +5001,33 @@ body.is-threat-shaking .game-shell {
   }
 }
 
+@keyframes sketchNoticeLifecycle {
+  0% {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  12%,
+  86% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes sketchContinueCue {
+  0%,
+  42% {
+    opacity: 1;
+  }
+  43%,
+  100% {
+    opacity: 0.25;
+  }
+}
+
 @keyframes sketchVisualBeatIn {
   0% {
     opacity: 0;
@@ -4985,71 +5107,231 @@ body.is-threat-shaking .game-shell {
   }
 }
 
-@media (max-width: 840px), (max-height: 620px) {
+@media (max-width: 720px) {
   .sketch-shell {
-    align-items: center;
+    align-items: stretch;
     overflow: hidden;
-    padding: 10px;
+    padding: 0;
   }
 
   .sketch-stage {
-    aspect-ratio: 16 / 9;
-    max-height: calc(100vh - 20px);
-    min-height: 0;
-    width: min(1200px, calc(100vw - 20px));
+    aspect-ratio: auto;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    height: 100dvh;
+    max-height: 100dvh;
+    min-height: 100dvh;
+    width: 100vw;
   }
 
+  .designer-layer,
+  .designer-foreground-full,
   .sketch-scene {
-    height: 46vh;
+    height: 100%;
     object-fit: cover;
-    position: relative;
+    object-position: center;
   }
 
-  .sketch-avatar {
+  .designer-prop-avatar,
+  .sketch-q-1 .designer-prop-avatar,
+  .sketch-q-2 .designer-prop-avatar,
+  .sketch-q-3 .designer-prop-avatar,
+  .sketch-q-4 .designer-prop-avatar,
+  .sketch-q-5 .designer-prop-avatar {
     bottom: auto;
-    height: clamp(150px, 34vw, 230px);
-    right: 8vw;
-    top: 28vh;
+    max-height: 20%;
+    right: 3%;
+    top: 7%;
+    width: min(38%, 170px);
   }
 
   .sketch-topbar {
-    inset: 12px 12px auto;
+    inset: 12px 12px auto auto;
   }
 
   .sketch-start {
-    left: 50%;
-    top: 50%;
-    width: min(86%, 520px);
+    border-radius: 22px;
+    min-height: 210px;
+    width: min(90%, 420px);
+  }
+
+  .sketch-start span {
+    font-size: clamp(2rem, 12vw, 3.5rem);
+  }
+
+  .sketch-prelude-copy {
+    border-radius: 20px;
+    max-width: none;
+    padding: 22px 20px;
+    width: calc(100% - 32px);
+  }
+
+  .sketch-prelude-copy strong {
+    font-size: clamp(0.78rem, 3.6vw, 1rem);
+    line-height: 1.7;
+  }
+
+  .sketch-prelude-atmosphere.is-hologram {
+    height: 132px;
+  }
+
+  .sketch-blink-moment span {
+    font-size: 1.05rem;
   }
 
   .sketch-quiz-layer {
     inset: 0;
-    padding: 24px;
+    padding: 12px;
     position: absolute;
   }
 
   .sketch-question-card {
+    bottom: auto;
+    gap: 10px;
     grid-template-columns: 1fr;
-    max-height: calc(100% - 72px);
+    left: 12px;
+    max-height: calc(70% - 12px);
+    top: 30%;
+    width: calc(100% - 24px);
+  }
+
+  .sketch-q-4 .sketch-question-card {
+    left: 12px;
+    width: calc(100% - 24px);
+  }
+
+  .sketch-question-card.is-choice-phase {
+    grid-template-rows: auto auto;
+    height: auto;
   }
 
   .sketch-dialogue {
-    min-height: 0;
+    max-width: none;
+    min-height: 168px;
+    padding: 28px 28px 24px;
+  }
+
+  .sketch-question-card.is-choice-phase .sketch-dialogue {
+    height: auto;
+    min-height: 154px;
+  }
+
+  .sketch-dialogue pre {
+    font-size: clamp(0.78rem, 3.45vw, 0.96rem);
+    line-height: 1.42;
+  }
+
+  .sketch-dialogue small {
+    font-size: 0.66rem;
+  }
+
+  .sketch-dialogue-visuals {
+    gap: 6px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .sketch-dialogue-visual {
+    border-radius: 8px;
   }
 
   .sketch-options {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 7px;
+    grid-template-columns: 1fr;
+    grid-template-rows: repeat(4, minmax(58px, auto));
+    height: auto;
+  }
+
+  .sketch-option {
+    gap: 9px;
+    grid-template-columns: 30px minmax(0, 1fr);
+    min-height: 58px;
+    padding: 16px 24px;
+  }
+
+  .sketch-option span {
+    font-size: 0.78rem;
+    height: 30px;
+    width: 30px;
+  }
+
+  .sketch-option strong {
+    font-size: clamp(0.74rem, 3.25vw, 0.9rem);
+    line-height: 1.18;
+  }
+
+  .sketch-system-notice {
+    padding: 12px 18px;
+  }
+
+  .sketch-system-notice-card {
+    max-width: 100%;
+    min-width: 0;
+    padding: 20px 18px;
+    width: min(100%, 390px);
+  }
+
+  .sketch-system-notice-card span {
+    font-size: 0.68rem;
+  }
+
+  .sketch-system-notice-card strong {
+    font-size: clamp(0.92rem, 4.5vw, 1.2rem);
+    line-height: 1.35;
+  }
+
+  .sketch-chat-trigger {
+    left: 4%;
+    top: 20%;
+    width: 78px;
+  }
+
+  .sketch-asset-window {
+    max-width: min(86vw, 330px);
+    min-width: 0;
+    width: 100%;
+  }
+
+  .sketch-notification-stack i {
+    font-size: 0.68rem;
+    min-width: 116px;
+    padding: 8px 10px;
+  }
+
+  .sketch-notification-stack i:nth-child(1) {
+    left: 4%;
+    top: 16%;
+  }
+
+  .sketch-notification-stack i:nth-child(2) {
+    left: auto;
+    right: 4%;
+    top: 16%;
+  }
+
+  .sketch-notification-stack i:nth-child(3) {
+    left: 5%;
+    right: auto;
+    top: 23%;
+  }
+
+  .sketch-notification-stack i:nth-child(4) {
+    right: 4%;
+    top: 23%;
   }
 
   .sketch-result-card {
-    left: 50%;
-    max-height: none;
-    position: absolute;
-    top: max(52%, 330px);
-    width: min(92%, 680px);
+    max-height: calc(100dvh - 28px);
+    overflow-y: auto;
+    padding: 20px;
+    width: calc(100% - 28px);
   }
 
   .sketch-result-grid {
     grid-template-columns: 1fr;
+  }
+
+  .sketch-rpg-link {
+    display: none;
   }
 }

@@ -7,6 +7,7 @@ import {
   useRef,
   useState,
 } from "react";
+import "@fontsource/silkscreen/400.css";
 import {
   initialScores,
   outcomeOrder,
@@ -76,14 +77,14 @@ type SketchPreludeStep =
   | {
       body: string;
       eyebrow: string;
-      foreground: string;
+      foreground?: string;
       kind: "story";
       showWelcomePane?: boolean;
       tone?: "arrival" | "blink" | "flicker" | "hologram";
     }
   | {
       autoAdvanceMs: number;
-      foreground: string;
+      foreground?: string;
       kind: "notice";
       notice: SketchNotice;
       showWelcomePane?: boolean;
@@ -95,6 +96,10 @@ const resultLayers = ["img_3713.png"];
 const calculationDelayMs = 1250;
 const optionRevealDelayMs = 400;
 
+function getSketchNoticeDuration(kind: SketchNotice["kind"]) {
+  return kind === "warning" ? 4500 : 3800;
+}
+
 const sketchPreludeSteps: SketchPreludeStep[] = [
   {
     body: "It's your first week at NBS.\nYou walk into WCY Plaza to find your orientation room.",
@@ -105,14 +110,13 @@ const sketchPreludeSteps: SketchPreludeStep[] = [
   },
   {
     body: "The air feels juuust slightly off.\nThe lights flicker.",
-    eyebrow: "Signal Shift",
+    eyebrow: "",
     foreground: "img_3687.png",
     kind: "story",
     tone: "flicker",
   },
   {
-    autoAdvanceMs: 1700,
-    foreground: "img_3689.png",
+    autoAdvanceMs: 3000,
     kind: "notice",
     notice: {
       body: "",
@@ -120,11 +124,10 @@ const sketchPreludeSteps: SketchPreludeStep[] = [
       kind: "info",
       title: "System update in progress.",
     },
-    showWelcomePane: true,
     tone: "hologram",
   },
   {
-    autoAdvanceMs: 2300,
+    autoAdvanceMs: 3200,
     foreground: "img_3689.png",
     kind: "notice",
     notice: {
@@ -133,11 +136,10 @@ const sketchPreludeSteps: SketchPreludeStep[] = [
       kind: "info",
       title: "Welcome, Player.",
     },
-    showWelcomePane: true,
     tone: "hologram",
   },
   {
-    autoAdvanceMs: 2300,
+    autoAdvanceMs: 3400,
     foreground: "img_3689.png",
     kind: "notice",
     notice: {
@@ -158,13 +160,13 @@ const sketchPreludeSteps: SketchPreludeStep[] = [
   },
   {
     body: "...Did I just get isekai'd into NBS?",
-    eyebrow: "Reality Check",
+    eyebrow: "",
     foreground: "img_3687.png",
     kind: "story",
     tone: "arrival",
   },
   {
-    autoAdvanceMs: 2400,
+    autoAdvanceMs: 3400,
     foreground: "img_3689.png",
     kind: "notice",
     notice: {
@@ -375,7 +377,17 @@ function useSketchTypewriter(text: string, enabled: boolean) {
     return clearTyping;
   }, [clearTyping, enabled, text]);
 
-  return { isTyping, visibleText };
+  const skipTyping = useCallback(() => {
+    if (!isTyping) {
+      return;
+    }
+
+    clearTyping();
+    setVisibleText(text);
+    setIsTyping(false);
+  }, [clearTyping, isTyping, text]);
+
+  return { isTyping, skipTyping, visibleText };
 }
 
 function getLayersForState(state: SketchQuizState) {
@@ -407,13 +419,11 @@ function getSketchDialogueBeats(question: (typeof quizQuestions)[number]) {
         "Seniors hyping the crowd.",
         "Friend groups forming in real time.",
         "You’ve entered the Orientation Arena.",
-        cleanText(
-          `The Orientation Arena is active.\nThe cheers, hype, and instant friend groups are still moving around you.\n\n${prompt}`,
-        ),
+        '"Looks like I have to survive this Orientation event... what should I do...?"',
       ];
     case "finding-your-class":
       return [
-        "You blink.\nand you're back at the WCY Plaza entrance again.",
+        "You blink.\nYou’re back at the WCY Plaza entrance again.",
         "You start walking.\nLeft turn. Right turn. Another corridor. You are unable to find your class.",
         cleanText(
           `You are still at WCY Plaza, class is starting soon, and every corridor looks suspiciously similar.\n\n${prompt}`,
@@ -515,7 +525,7 @@ function getSketchNotice(
       return beatIndex === 2
         ? {
             advanceOnClose: true,
-            body: "Optional commitments detected.",
+            body: "Survive CCA Fair",
             key: "cca-fair-event",
             kind: "event",
             title: "Event: The CCA Fair",
@@ -584,21 +594,21 @@ function getSketchVisualBeats(
     const orientationBeats: SketchVisualBeat[] = [
       {
         detail: "Sound waves fill WCY Plaza.",
-        image: "generated/story-loud-cheers.png",
+        image: "generated-v2/story-loud-cheers-v2.png",
         key: "loud-cheers",
         title: "Loud cheers",
         variant: "cheer",
       },
       {
         detail: "Seniors rally the crowd.",
-        image: "generated/story-senior-hype.png",
+        image: "generated-v2/story-senior-hype-v2.png",
         key: "senior-hype",
         title: "Seniors hyping the crowd",
         variant: "crowd",
       },
       {
         detail: "Groups form in real time.",
-        image: "generated/story-friend-groups.png",
+        image: "generated-v2/story-friend-groups-v2.png",
         key: "friend-groups",
         title: "Friend groups forming",
         variant: "crowd",
@@ -618,12 +628,12 @@ function getSketchVisualBeats(
     return orientationBeats.slice(0, revealCount);
   }
 
-  if (questionId === "finding-your-class" && beatIndex === 1) {
-    return isCurrentBeatComplete
+  if (questionId === "finding-your-class" && beatIndex >= 1) {
+    return isCurrentBeatComplete || beatIndex > 1
       ? [
       {
         detail: "The map insists you are both close and lost.",
-        image: "generated/story-reroute.png",
+        image: "generated-v2/story-reroute-v2.png",
         key: "map-loop",
         title: "Route recalculating",
         variant: "map",
@@ -636,21 +646,21 @@ function getSketchVisualBeats(
     const ccaBeats: SketchVisualBeat[] = [
       {
         detail: "Exit route bends back toward the plaza.",
-        image: "generated/story-reroute.png",
+        image: "generated-v2/story-reroute-v2.png",
         key: "reroute-path",
         title: "Path reroutes",
         variant: "reroute",
       },
       {
         detail: "Same plaza. Somehow louder.",
-        image: "generated/story-back-plaza.png",
+        image: "generated-v2/story-back-plaza-v2.png",
         key: "back-to-plaza",
         title: "Back at WCY Plaza",
         variant: "plaza",
       },
       {
         detail: "A tote bag appears in your hands.",
-        image: "generated/story-cca-fair.png",
+        image: "generated-v2/story-cca-fair-v2.png",
         key: "tote-bag",
         title: "Freebies acquired",
         variant: "fair",
@@ -673,6 +683,21 @@ function getSketchVisualBeats(
   }
 
   return [];
+}
+
+function getSketchVisualSlotCount(
+  questionId: (typeof quizQuestions)[number]["id"],
+  beatIndex: number,
+) {
+  if (questionId === "orientation-arena") {
+    return beatIndex >= 1 ? 3 : 0;
+  }
+
+  if (questionId === "finding-your-class") {
+    return beatIndex >= 1 ? 3 : 0;
+  }
+
+  return questionId === "cca-fair" ? 3 : 0;
 }
 
 function getSketchForegroundAssets(
@@ -819,6 +844,9 @@ function SketchQuizApp() {
   const question = quizQuestions[state.currentQuestionIndex];
   const result = state.resultId ? resultProfiles[state.resultId] : null;
   const layers = getLayersForState(state);
+  const showBuildSwitcher = new URLSearchParams(window.location.search).has(
+    "debug",
+  );
 
   useEffect(() => {
     if (state.phase !== "calculating") {
@@ -883,9 +911,11 @@ function SketchQuizApp() {
         )}
       </section>
 
-      <a className="sketch-rpg-link" href="?theme=rpg">
-        Open RPG build
-      </a>
+      {showBuildSwitcher && (
+        <a className="sketch-rpg-link" href="?theme=rpg">
+          Open RPG build
+        </a>
+      )}
     </main>
   );
 }
@@ -900,7 +930,7 @@ function SketchStartScreen({ onStart }: { onStart: () => void }) {
     >
       <span>What NBS Freshman Are You?</span>
       <strong>Press Start</strong>
-      <small>Chill sketch draft</small>
+      <small>NBS Welcome Day</small>
     </button>
   );
 }
@@ -952,11 +982,13 @@ function SketchPreludeScreen({ onComplete }: { onComplete: () => void }) {
       </div>
 
       <div className="designer-foreground-stack" aria-hidden="true">
-        <img
-          alt=""
-          className="designer-layer designer-foreground-full"
-          src={`${designerAsset}${currentStep.foreground}`}
-        />
+        {currentStep.foreground && (
+          <img
+            alt=""
+            className="designer-layer designer-foreground-full"
+            src={`${designerAsset}${currentStep.foreground}`}
+          />
+        )}
       </div>
 
       {currentStep.tone && (
@@ -982,7 +1014,7 @@ function SketchPreludeScreen({ onComplete }: { onComplete: () => void }) {
           onClick={advancePrelude}
           type="button"
         >
-          <span>{currentStep.eyebrow}</span>
+          {currentStep.eyebrow && <span>{currentStep.eyebrow}</span>}
           <strong>{currentStep.body}</strong>
           <small>Tap to continue</small>
         </button>
@@ -990,8 +1022,8 @@ function SketchPreludeScreen({ onComplete }: { onComplete: () => void }) {
 
       {currentStep.kind === "notice" && (
         <SketchSystemNotice
+          durationMs={currentStep.autoAdvanceMs}
           notice={currentStep.notice}
-          onClose={advancePrelude}
         />
       )}
 
@@ -1022,7 +1054,7 @@ function SketchQuestionScreen({
   const isFinalBeat = beatIndex >= dialogueBeats.length - 1;
   const showGroupChatTrigger =
     question.id === "group-project" && !sceneIntroVisible && beatIndex >= 1;
-  const { isTyping, visibleText } = useSketchTypewriter(
+  const { isTyping, skipTyping, visibleText } = useSketchTypewriter(
     currentBeatText,
     !sceneIntroVisible,
   );
@@ -1052,9 +1084,9 @@ function SketchQuestionScreen({
   const showBurnoutNotifications =
     question.id === "burnout-monster" &&
     !sceneIntroVisible &&
-    beatIndex >= 1 &&
-    beatIndex <= 3;
+    beatIndex >= 1;
   const visualBeats = getSketchVisualBeats(question.id, beatIndex, !isTyping);
+  const visualSlotCount = getSketchVisualSlotCount(question.id, beatIndex);
 
   useEffect(() => {
     setSceneIntroVisible(false);
@@ -1118,7 +1150,7 @@ function SketchQuestionScreen({
 
     const timeout = window.setTimeout(() => {
       handleNoticeClose();
-    }, activeNotice.kind === "warning" ? 2500 : 2100);
+    }, getSketchNoticeDuration(activeNotice.kind));
 
     return () => window.clearTimeout(timeout);
   }, [activeNotice, handleNoticeClose]);
@@ -1138,19 +1170,13 @@ function SketchQuestionScreen({
       return;
     }
 
-    if (beatNotice && acknowledgedNoticeKey !== beatNotice.key) {
-      return;
-    }
-
     const timeout = window.setTimeout(() => {
       setOptionsVisible(true);
     }, optionRevealDelayMs);
 
     return () => window.clearTimeout(timeout);
   }, [
-    acknowledgedNoticeKey,
     beatIndex,
-    beatNotice,
     isFinalBeat,
     isTyping,
     question.id,
@@ -1163,6 +1189,7 @@ function SketchQuestionScreen({
     }
 
     if (isTyping) {
+      skipTyping();
       return;
     }
 
@@ -1194,8 +1221,6 @@ function SketchQuestionScreen({
       <SketchSceneLayers foreground={foregroundAssets} layers={scene.layers} />
       <div className="sketch-focus-wash" aria-hidden="true" />
 
-      {visualBeats.length > 0 && <SketchVisualBeatLayer beats={visualBeats} />}
-
       {showBurnoutNotifications && <SketchNotificationStack />}
 
       {showGroupChatTrigger && (
@@ -1222,29 +1247,39 @@ function SketchQuestionScreen({
           <button
             aria-label="Close Biz Case group chat"
             className="sketch-asset-window"
-            onClick={(event) => event.stopPropagation()}
+            onClick={(event) => {
+              event.stopPropagation();
+              setGroupChatOpen(false);
+            }}
             type="button"
           >
             <img
               alt="Biz Case group chat sketch"
               src={`${designerAsset}props/biz-case-phone.png`}
             />
-            <span>Tap outside to return</span>
+            <span>Tap to return</span>
           </button>
         </div>
       )}
 
       {activeNotice && (
-        <SketchSystemNotice notice={activeNotice} onClose={handleNoticeClose} />
+        <SketchSystemNotice
+          durationMs={getSketchNoticeDuration(activeNotice.kind)}
+          notice={activeNotice}
+        />
       )}
 
-      <div className="sketch-quiz-layer">
+      <div
+        className="sketch-quiz-layer"
+      >
         <div className="sketch-topbar">
           <span>{`${currentIndex + 1}/${quizQuestions.length}`}</span>
         </div>
 
         <section
-          className={`sketch-question-card sketch-pane-${scene.pane} has-options`}
+          className={`sketch-question-card sketch-pane-${scene.pane} ${
+            isFinalBeat ? "is-choice-phase" : "is-story-phase"
+          } ${visualSlotCount > 0 ? "has-visuals" : ""}`}
         >
           <button
             className="sketch-dialogue"
@@ -1258,12 +1293,27 @@ function SketchQuestionScreen({
                   : "Continue dialogue"
             }
           >
-            <pre>
-              {visibleText}
-              {isTyping && <i aria-hidden="true">|</i>}
-            </pre>
+            <div className="sketch-dialogue-content">
+              <div className="sketch-dialogue-copy">
+                <pre className="sketch-dialogue-text">
+                  {visibleText}
+                  {isTyping && <i aria-hidden="true">|</i>}
+                </pre>
+                <pre className="sketch-dialogue-measure" aria-hidden="true">
+                  {currentBeatText}
+                </pre>
+              </div>
+              {visualSlotCount > 0 && (
+                <SketchDialogueVisuals
+                  beats={visualBeats}
+                  slotCount={visualSlotCount}
+                />
+              )}
+            </div>
             {!isTyping && (
-              <small>{isFinalBeat ? "Choose your move" : "Tap to continue"}</small>
+              <small className={isFinalBeat ? "is-choice-cue" : "is-continue-cue"}>
+                {isFinalBeat ? "Choose your move" : "Tap to continue"}
+              </small>
             )}
           </button>
 
@@ -1291,47 +1341,53 @@ function SketchQuestionScreen({
   );
 }
 
-function SketchVisualBeatLayer({ beats }: { beats: SketchVisualBeat[] }) {
+function SketchDialogueVisuals({
+  beats,
+  slotCount,
+}: {
+  beats: SketchVisualBeat[];
+  slotCount: number;
+}) {
   return (
-    <div className="sketch-visual-beats" aria-hidden="true">
-      {beats.map((beat, index) => (
-        <article
-          className={`sketch-visual-beat is-${beat.variant}`}
-          key={beat.key}
+    <div className="sketch-dialogue-visuals" aria-hidden="true">
+      {Array.from({ length: slotCount }, (_, index) => {
+        const beat = beats[index];
+
+        return (
+        <figure
+          className={`sketch-dialogue-visual ${
+            beat ? `has-image is-${beat.variant}` : "is-reserved"
+          }`}
+          key={beat?.key ?? `reserved-${index}`}
           style={{ "--beat-index": index } as CSSProperties}
         >
-          <img alt="" src={`${designerAsset}${beat.image}`} />
-          <div>
-            <strong>{beat.title}</strong>
-            <small>{beat.detail}</small>
-          </div>
-        </article>
-      ))}
+          {beat && <img alt="" src={`${designerAsset}${beat.image}`} />}
+        </figure>
+        );
+      })}
     </div>
   );
 }
 
 function SketchSystemNotice({
+  durationMs,
   notice,
-  onClose,
 }: {
+  durationMs: number;
   notice: SketchNotice;
-  onClose: () => void;
 }) {
   return (
     <div
       className={`sketch-system-notice is-${notice.kind}`}
-      role="dialog"
-      aria-modal="true"
+      role="status"
+      aria-live={notice.kind === "warning" ? "assertive" : "polite"}
       aria-label={notice.title}
-      onClick={onClose}
+      style={{ "--notice-duration": `${durationMs}ms` } as CSSProperties}
     >
       <div
         className={`sketch-system-notice-card ${
           notice.body ? "" : "has-title-only"
         }`}
-        onClick={(event) => event.stopPropagation()}
-        role="document"
       >
         <span>{notice.title}</span>
         {notice.body && <strong>{notice.body}</strong>}
