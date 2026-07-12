@@ -231,6 +231,44 @@ function playSketchSceneSound(index: number) {
   }
 }
 
+function playSketchNotificationBurst() {
+  const AudioContextCtor =
+    window.AudioContext ??
+    (window as unknown as { webkitAudioContext?: typeof AudioContext })
+      .webkitAudioContext;
+
+  if (!AudioContextCtor) {
+    return;
+  }
+
+  try {
+    sketchAudioContext ??= new AudioContextCtor();
+
+    if (sketchAudioContext.state === "suspended") {
+      void sketchAudioContext.resume();
+    }
+
+    const now = sketchAudioContext.currentTime + 0.01;
+
+    [659, 740, 831, 988].forEach((frequency, index) => {
+      const oscillator = sketchAudioContext!.createOscillator();
+      const gain = sketchAudioContext!.createGain();
+      const startAt = now + index * 0.13;
+      oscillator.type = "square";
+      oscillator.frequency.setValueAtTime(frequency, startAt);
+      gain.gain.setValueAtTime(0.0001, startAt);
+      gain.gain.exponentialRampToValueAtTime(0.028, startAt + 0.012);
+      gain.gain.exponentialRampToValueAtTime(0.0001, startAt + 0.11);
+      oscillator.connect(gain);
+      gain.connect(sketchAudioContext!.destination);
+      oscillator.start(startAt);
+      oscillator.stop(startAt + 0.12);
+    });
+  } catch {
+    // The notification animation remains usable when autoplay audio is blocked.
+  }
+}
+
 function createSketchInitialState(): SketchQuizState {
   return {
     currentQuestionIndex: 0,
@@ -619,13 +657,11 @@ function getSketchVisualBeats(
       return [];
     }
 
-    const completedVisualCount = Math.min(3, beatIndex - 1);
-    const currentVisualCount =
-      beatIndex >= 1 && beatIndex <= 3 && isCurrentBeatComplete ? 1 : 0;
-    const revealCount =
-      beatIndex >= 4 ? 3 : completedVisualCount + currentVisualCount;
+    const targetIndex = Math.min(2, beatIndex - 1);
+    const visibleIndex =
+      beatIndex <= 3 && !isCurrentBeatComplete ? targetIndex - 1 : targetIndex;
 
-    return orientationBeats.slice(0, revealCount);
+    return visibleIndex >= 0 ? [orientationBeats[visibleIndex]] : [];
   }
 
   if (questionId === "finding-your-class" && beatIndex >= 1) {
@@ -667,19 +703,11 @@ function getSketchVisualBeats(
       },
     ];
 
-    if (beatIndex === 0) {
-      return isCurrentBeatComplete ? ccaBeats.slice(0, 1) : [];
-    }
+    const targetIndex = Math.min(2, beatIndex);
+    const visibleIndex =
+      beatIndex <= 2 && !isCurrentBeatComplete ? targetIndex - 1 : targetIndex;
 
-    if (beatIndex === 1) {
-      return ccaBeats.slice(0, isCurrentBeatComplete ? 2 : 1);
-    }
-
-    if (beatIndex === 2) {
-      return ccaBeats.slice(0, isCurrentBeatComplete ? 3 : 2);
-    }
-
-    return ccaBeats;
+    return visibleIndex >= 0 ? [ccaBeats[visibleIndex]] : [];
   }
 
   return [];
@@ -1046,6 +1074,7 @@ function SketchQuestionScreen({
   const [beatIndex, setBeatIndex] = useState(0);
   const [optionsVisible, setOptionsVisible] = useState(false);
   const [groupChatOpen, setGroupChatOpen] = useState(false);
+  const burnoutNotificationSoundPlayedRef = useRef(false);
   const [acknowledgedNoticeKey, setAcknowledgedNoticeKey] = useState<
     string | null
   >(null);
@@ -1096,6 +1125,18 @@ function SketchQuestionScreen({
     setAcknowledgedNoticeKey(null);
     playSketchSceneSound(currentIndex);
   }, [currentIndex, question.id]);
+
+  useEffect(() => {
+    if (
+      !showBurnoutNotifications ||
+      burnoutNotificationSoundPlayedRef.current
+    ) {
+      return;
+    }
+
+    burnoutNotificationSoundPlayedRef.current = true;
+    playSketchNotificationBurst();
+  }, [showBurnoutNotifications]);
 
   useEffect(() => {
     setAcknowledgedNoticeKey(null);
