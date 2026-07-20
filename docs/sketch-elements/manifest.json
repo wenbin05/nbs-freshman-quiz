@@ -1,0 +1,250 @@
+[
+  {
+    "page": 1,
+    "label": "premise-clean-wcy-plaza",
+    "source": "docs/sketch-board-preview/page-01.png",
+    "frame": "public/assets/sketch-elements/frames/page-01-premise-clean-wcy-plaza-frame.png",
+    "clean": "public/assets/sketch-elements/clean/page-01-premise-clean-wcy-plaza-clean.png",
+    "no_ui": "public/assets/sketch-elements/no-ui/page-01-premise-clean-wcy-plaza-no-ui.png",
+    "orange_panel": null,
+    "orange_panel_bbox_in_frame": null,
+    "has_baked_orange_ui": false
+  },
+  {
+    "page": 2,
+    "label": "premise-welcome-overlay",
+    "source": "docs/sketch-board-preview/page-02.png",
+    "frame": "public/assets/sketch-elements/frames/page-02-premise-welcome-overlay-frame.png",
+    "clean": "public/assets/sketch-elements/clean/page-02-premise-welcome-overlay-clean.png",
+    "no_ui": "public/assets/sketch-elements/no-ui/page-02-premise-welcome-overlay-no-ui.png",
+    "orange_panel": "public/assets/sketch-elements/panels/page-02-premise-welcome-overlay-orange-panel.png",
+    "orange_panel_bbox_in_frame": [
+      99,
+      44,
+      708,
+      454
+    ],
+    "has_baked_orange_ui": true
+  },
+  {
+    "page": 3,
+    "label": "q1-character-spawn",
+    "source": "docs/sketch-board-preview/page-03.png",
+    "frame": "public/assets/sketch-elements/frames/page-03-q1-character-spawn-frame.png",
+    "clean": "public/assets/sketch-elements/clean/page-03-q1-character-spawn-clean.png",
+    "no_ui": "public/assets/sketch-elements/no-ui/page-03-q1-character-spawn-no-ui.png",
+    "orange_panel": "public/assets/sketch-elements/panels/page-03-q1-character-spawn-orange-panel.png",
+    "orange_panel_bbox_in_frame": [
+      99,
+      44,
+      709,
+      454
+    ],
+    "has_baked_orange_ui": true
+  },
+  {
+    "page": 4,
+    "label": "q2-orientation-clean",
+    "source": "docs/sketch-board-preview/page-04.png",
+    "frame": "public/assets/sketch-elements/frames/page-04-q2-orientation-clean-frame.png",
+    "clean": "public/assets/sketch-elements/clean/page-04-q2-orientation-clean-clean.png",
+    "no_ui": "public/assets/sketch-elements/no-ui/page-04-q2-orientation-clean-no-ui.png",
+    "orange_panel": null,
+    "orange_panel_bbox_in_frame": null,
+    "has_baked_orange_ui": false
+  },
+  {
+    "page": 5,
+    "label": "q2-orientation-choice-overlay",
+    "source": "docs/sketch-board-preview/page-05.png",
+    "frame": "public/assets/sketch-elements/frames/page-05-q2-orientation-choice-overlay-frame.png",
+    "clean": "public/assets/sketch-elements/clean/page-05-q2-orientation-choice-overlay-clean.png",
+    "no_ui": "public/assets/sketch-elements/no-ui/page-05-q2-orientation-choice-overlay-no-ui.png",
+    "orange_panel": "public/assets/sketch-elements/panels/page-05-q2-orientation-choice-overlay-orange-panel.png",
+    "orange_panel_bbox_in_frame": [
+      99,
+      43,
+      708,
+      454
+    ],
+    "has_baked_orange_ui": true
+  },
+  {
+    "page": 6,
+    "label": "q3-time-flies-overlay",
+    "source": "docs/sketch-board-preview/page-06.png",
+    "frame": "public/assets/sketch-elements/frames/page-06-q3-time-flies-overlay-frame.png",
+    "clean": "public/assets/sketch-elements/clean/page-06-q3-time-flies-overlay-clean.png",
+    "no_ui": "public/assets/sketch-elements/no-ui/page-06-q3-time-flies-overlay-no-ui.png",
+    "orange_panel": "public/assets/sketch-elements/panels/page-06-q3-time-flies-overlay-orange-panel.png",
+    "orange_panel_bbox_in_frame": [
+      99,
+      44,
+      708,
+      454
+    ],
+    "has_baked_orange_ui": true
+  },
+  {
+    "page": 7,
+    "label": "q3-navigation-choice-overlay",
+    "source": "docs/sketch-board-preview/page-07.png",
+    "frame": "public/assets/sketch-elements/frames/page-07-q3-navigation-choice-overlay-frame.png",
+    "clean": "public/assets/sketch-elements/clean/page-07-q3-navigation-choice-overlay-clean.png",
+    "no_ui": "public/assets/sketch-elements/no-ui/page-07-q3-navigation-choice-overlay-no-ui.png",
+    "orange_panel": "public/assets/sketch-elements/panels/page-07-q3-navigation-choice-overlay-orange-panel.png",
+    "orange_panel_bbox_in_frame": [
+      99,
+      44,
+      708,
+      542
+    ],
+    "has_baked_orange_ui": true
+  },
+  {
+    "page": 8,
+    "label": "q4-classroom-clean",
+    "source": "docs/sketch-board-preview/page-08.png",
+    "frame": "public/assets/sketch-elements/frames/page-08-q4-classroom-clean-frame.png",
+    "clean": "public/assets/sketch-elements/clean/page-08-q4-classroom-clean-clean.png",
+    "no_ui": "public/assets/sketch-elements/no-ui/page-08-q4-classroom-clean-no-ui.png",
+    "orange_panel": null,
+    "orange_panel_bbox_in_frame": null,
+    "has_baked_orange_ui": false
+  },
+  {
+    "page": 9,
+    "label": "q4-group-chat-choice-overlay",
+    "source": "docs/sketch-board-preview/page-09.png",
+    "frame": "public/assets/sketch-elements/frames/page-09-q4-group-chat-choice-overlay-frame.png",
+    "clean": "public/assets/sketch-elements/clean/page-09-q4-group-chat-choice-overlay-clean.png",
+    "no_ui": "public/assets/sketch-elements/no-ui/page-09-q4-group-chat-choice-overlay-no-ui.png",
+    "orange_panel": "public/assets/sketch-elements/panels/page-09-q4-group-chat-choice-overlay-orange-panel.png",
+    "orange_panel_bbox_in_frame": [
+      99,
+      44,
+      708,
+      454
+    ],
+    "has_baked_orange_ui": true
+  },
+  {
+    "page": 10,
+    "label": "q5-cca-fair-clean",
+    "source": "docs/sketch-board-preview/page-10.png",
+    "frame": "public/assets/sketch-elements/frames/page-10-q5-cca-fair-clean-frame.png",
+    "clean": "public/assets/sketch-elements/clean/page-10-q5-cca-fair-clean-clean.png",
+    "no_ui": "public/assets/sketch-elements/no-ui/page-10-q5-cca-fair-clean-no-ui.png",
+    "orange_panel": null,
+    "orange_panel_bbox_in_frame": null,
+    "has_baked_orange_ui": false
+  },
+  {
+    "page": 11,
+    "label": "q5-cca-fair-choice-overlay",
+    "source": "docs/sketch-board-preview/page-11.png",
+    "frame": "public/assets/sketch-elements/frames/page-11-q5-cca-fair-choice-overlay-frame.png",
+    "clean": "public/assets/sketch-elements/clean/page-11-q5-cca-fair-choice-overlay-clean.png",
+    "no_ui": "public/assets/sketch-elements/no-ui/page-11-q5-cca-fair-choice-overlay-no-ui.png",
+    "orange_panel": "public/assets/sketch-elements/panels/page-11-q5-cca-fair-choice-overlay-orange-panel.png",
+    "orange_panel_bbox_in_frame": [
+      99,
+      43,
+      708,
+      454
+    ],
+    "has_baked_orange_ui": true
+  },
+  {
+    "page": 12,
+    "label": "q6-notification-stack-clean",
+    "source": "docs/sketch-board-preview/page-12.png",
+    "frame": "public/assets/sketch-elements/frames/page-12-q6-notification-stack-clean-frame.png",
+    "clean": "public/assets/sketch-elements/clean/page-12-q6-notification-stack-clean-clean.png",
+    "no_ui": "public/assets/sketch-elements/no-ui/page-12-q6-notification-stack-clean-no-ui.png",
+    "orange_panel": null,
+    "orange_panel_bbox_in_frame": null,
+    "has_baked_orange_ui": false
+  },
+  {
+    "page": 13,
+    "label": "q6-burnout-monster-choice-overlay",
+    "source": "docs/sketch-board-preview/page-13.png",
+    "frame": "public/assets/sketch-elements/frames/page-13-q6-burnout-monster-choice-overlay-frame.png",
+    "clean": "public/assets/sketch-elements/clean/page-13-q6-burnout-monster-choice-overlay-clean.png",
+    "no_ui": "public/assets/sketch-elements/no-ui/page-13-q6-burnout-monster-choice-overlay-no-ui.png",
+    "orange_panel": "public/assets/sketch-elements/panels/page-13-q6-burnout-monster-choice-overlay-orange-panel.png",
+    "orange_panel_bbox_in_frame": [
+      99,
+      44,
+      708,
+      454
+    ],
+    "has_baked_orange_ui": true
+  },
+  {
+    "page": 14,
+    "label": "q7-notifications-clean",
+    "source": "docs/sketch-board-preview/page-14.png",
+    "frame": "public/assets/sketch-elements/frames/page-14-q7-notifications-clean-frame.png",
+    "clean": "public/assets/sketch-elements/clean/page-14-q7-notifications-clean-clean.png",
+    "no_ui": "public/assets/sketch-elements/no-ui/page-14-q7-notifications-clean-no-ui.png",
+    "orange_panel": null,
+    "orange_panel_bbox_in_frame": null,
+    "has_baked_orange_ui": false
+  },
+  {
+    "page": 15,
+    "label": "q7-finals-warning-clean",
+    "source": "docs/sketch-board-preview/page-15.png",
+    "frame": "public/assets/sketch-elements/frames/page-15-q7-finals-warning-clean-frame.png",
+    "clean": "public/assets/sketch-elements/clean/page-15-q7-finals-warning-clean-clean.png",
+    "no_ui": "public/assets/sketch-elements/no-ui/page-15-q7-finals-warning-clean-no-ui.png",
+    "orange_panel": null,
+    "orange_panel_bbox_in_frame": null,
+    "has_baked_orange_ui": false
+  },
+  {
+    "page": 16,
+    "label": "q7-finals-choice-overlay",
+    "source": "docs/sketch-board-preview/page-16.png",
+    "frame": "public/assets/sketch-elements/frames/page-16-q7-finals-choice-overlay-frame.png",
+    "clean": "public/assets/sketch-elements/clean/page-16-q7-finals-choice-overlay-clean.png",
+    "no_ui": "public/assets/sketch-elements/no-ui/page-16-q7-finals-choice-overlay-no-ui.png",
+    "orange_panel": "public/assets/sketch-elements/panels/page-16-q7-finals-choice-overlay-orange-panel.png",
+    "orange_panel_bbox_in_frame": [
+      99,
+      43,
+      708,
+      454
+    ],
+    "has_baked_orange_ui": true
+  },
+  {
+    "page": 17,
+    "label": "q8-weekend-portal-clean",
+    "source": "docs/sketch-board-preview/page-17.png",
+    "frame": "public/assets/sketch-elements/frames/page-17-q8-weekend-portal-clean-frame.png",
+    "clean": "public/assets/sketch-elements/clean/page-17-q8-weekend-portal-clean-clean.png",
+    "no_ui": "public/assets/sketch-elements/no-ui/page-17-q8-weekend-portal-clean-no-ui.png",
+    "orange_panel": null,
+    "orange_panel_bbox_in_frame": null,
+    "has_baked_orange_ui": false
+  },
+  {
+    "page": 18,
+    "label": "q8-weekend-choice-overlay",
+    "source": "docs/sketch-board-preview/page-18.png",
+    "frame": "public/assets/sketch-elements/frames/page-18-q8-weekend-choice-overlay-frame.png",
+    "clean": "public/assets/sketch-elements/clean/page-18-q8-weekend-choice-overlay-clean.png",
+    "no_ui": "public/assets/sketch-elements/no-ui/page-18-q8-weekend-choice-overlay-no-ui.png",
+    "orange_panel": "public/assets/sketch-elements/panels/page-18-q8-weekend-choice-overlay-orange-panel.png",
+    "orange_panel_bbox_in_frame": [
+      99,
+      43,
+      709,
+      454
+    ],
+    "has_baked_orange_ui": true
+  }
+]

@@ -3612,6 +3612,11 @@ body.is-threat-shaking .game-shell {
   width: 100vw;
 }
 
+.sketch-shell button,
+.sketch-shell summary {
+  font-family: inherit;
+}
+
 .sketch-backdrop {
   background:
     linear-gradient(90deg, rgba(48, 52, 73, 0.06) 1px, transparent 1px),
@@ -3839,7 +3844,7 @@ body.is-threat-shaking .game-shell {
 
 .sketch-prelude-copy strong {
   font-family: "Silkscreen", "Courier New", monospace;
-  font-size: clamp(0.88rem, 1.15vw, 1.1rem);
+  font-size: clamp(0.98rem, 1.3vw, 1.22rem);
   font-weight: 400;
   line-height: 1.65;
   text-wrap: balance;
@@ -4084,7 +4089,6 @@ body.is-threat-shaking .game-shell {
   height: auto;
   left: 8%;
   margin-top: 0;
-  max-height: 86%;
   max-width: none;
   min-height: 0;
   overflow: visible;
@@ -4092,15 +4096,15 @@ body.is-threat-shaking .game-shell {
   pointer-events: auto;
   position: absolute;
   bottom: auto;
-  top: 22%;
+  top: 12%;
   width: 76%;
   z-index: 10;
 }
 
 .sketch-question-card.is-choice-phase {
   grid-template-columns: 1fr;
-  grid-template-rows: auto minmax(0, 1fr);
-  height: 72%;
+  grid-template-rows: auto auto;
+  height: auto;
   min-height: 250px;
 }
 
@@ -4110,7 +4114,7 @@ body.is-threat-shaking .game-shell {
 }
 
 .sketch-question-card.is-choice-phase .sketch-options {
-  align-self: stretch;
+  align-self: start;
 }
 
 .sketch-question-card.is-story-phase .sketch-options {
@@ -4137,7 +4141,7 @@ body.is-threat-shaking .game-shell {
   color: var(--sketch-ink);
 }
 
-.sketch-dialogue {
+.sketch-shell .sketch-dialogue {
   background: transparent var(--sketch-pane-url) center / 100% 100% no-repeat;
   border: 0;
   border-radius: 0;
@@ -4146,6 +4150,7 @@ body.is-threat-shaking .game-shell {
   cursor: pointer;
   display: grid;
   filter: drop-shadow(5px 7px 0 rgba(48, 52, 73, 0.1));
+  font-family: "Silkscreen", "Courier New", monospace;
   height: auto;
   min-height: 158px;
   max-width: 790px;
@@ -4187,9 +4192,9 @@ body.is-threat-shaking .game-shell {
   align-self: start;
   color: #2c2c2c;
   font: inherit;
-  font-size: clamp(0.95rem, 1.05vw, 1.12rem);
-  font-weight: 900;
-  line-height: 1.42;
+  font-size: clamp(0.94rem, 1.05vw, 1.1rem);
+  font-weight: 400;
+  line-height: 1.55;
   margin: 0;
   max-height: 100%;
   overflow: visible;
@@ -4240,7 +4245,7 @@ body.is-threat-shaking .game-shell {
 .sketch-dialogue small {
   align-self: end;
   color: #666a80;
-  font-size: 0.8rem;
+  font-size: 0.86rem;
   font-weight: 950;
   justify-self: end;
   margin-top: 8px;
@@ -4260,9 +4265,9 @@ body.is-threat-shaking .game-shell {
   box-sizing: border-box;
   display: grid;
   gap: 16px;
-  height: 100%;
+  height: auto;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  grid-template-rows: repeat(2, minmax(0, 1fr));
+  grid-template-rows: repeat(2, minmax(94px, auto));
   opacity: 0;
   padding: 0;
   pointer-events: none;
@@ -4281,7 +4286,7 @@ body.is-threat-shaking .game-shell {
   visibility: visible;
 }
 
-.sketch-option {
+.sketch-shell .sketch-option {
   align-items: center;
   background: transparent var(--sketch-pane-url) center / 100% 100% no-repeat;
   border: 0;
@@ -4291,9 +4296,10 @@ body.is-threat-shaking .game-shell {
   cursor: pointer;
   display: grid;
   filter: drop-shadow(4px 5px 0 rgba(48, 52, 73, 0.1));
+  font-family: "Silkscreen", "Courier New", monospace;
   gap: 10px;
   grid-template-columns: 34px minmax(0, 1fr);
-  min-height: 0;
+  min-height: 94px;
   opacity: 0;
   padding: 24px 30px;
   text-align: left;
@@ -4650,8 +4656,11 @@ body.is-threat-shaking .game-shell {
 }
 
 .sketch-option strong {
-  font-size: clamp(0.84rem, 1.02vw, 1rem);
-  line-height: 1.12;
+  font-family: inherit;
+  font-size: clamp(0.82rem, 0.94vw, 0.96rem);
+  font-weight: 400;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
 }
 
 .sketch-result-card {
@@ -4665,12 +4674,39 @@ body.is-threat-shaking .game-shell {
   position: absolute;
   top: 50%;
   transform: translate(-50%, -50%);
-  width: min(86%, 820px);
+  width: min(90%, 900px);
   z-index: 6;
 }
 
-.sketch-result-card > span {
+.sketch-result-hero {
+  align-items: center;
+  display: grid;
+  gap: 18px;
+  grid-template-columns: minmax(0, 1fr) minmax(170px, 28%);
+}
+
+.sketch-result-heading {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+
+.sketch-result-heading > span {
+  color: var(--sketch-peach-deep);
+  font-size: 0.9rem;
+  font-weight: 950;
   justify-self: start;
+  text-transform: uppercase;
+}
+
+.sketch-result-character {
+  animation: sketchResultCharacterIn 720ms cubic-bezier(0.2, 1, 0.22, 1) both;
+  display: block;
+  filter: drop-shadow(5px 7px 0 rgba(48, 52, 73, 0.12));
+  height: clamp(180px, 28vw, 275px);
+  justify-self: center;
+  object-fit: contain;
+  width: 100%;
 }
 
 .sketch-result-card h1 {
@@ -4698,6 +4734,18 @@ body.is-threat-shaking .game-shell {
   font-size: 0.84rem;
   margin: 0 0 8px;
   text-transform: uppercase;
+}
+
+@keyframes sketchResultCharacterIn {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.94);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .sketch-chip-row {
@@ -5172,7 +5220,7 @@ body.is-threat-shaking .game-shell {
   }
 
   .sketch-prelude-copy strong {
-    font-size: clamp(0.78rem, 3.6vw, 1rem);
+    font-size: clamp(0.86rem, 3.85vw, 1.08rem);
     line-height: 1.7;
   }
 
@@ -5210,7 +5258,7 @@ body.is-threat-shaking .game-shell {
     height: auto;
   }
 
-  .sketch-dialogue {
+  .sketch-shell .sketch-dialogue {
     max-width: none;
     min-height: 168px;
     padding: 28px 28px 24px;
@@ -5222,12 +5270,12 @@ body.is-threat-shaking .game-shell {
   }
 
   .sketch-dialogue pre {
-    font-size: clamp(0.78rem, 3.45vw, 0.96rem);
-    line-height: 1.42;
+    font-size: clamp(0.74rem, 3.05vw, 0.88rem);
+    line-height: 1.55;
   }
 
   .sketch-dialogue small {
-    font-size: 0.66rem;
+    font-size: 0.72rem;
   }
 
   .sketch-dialogue-visuals {
@@ -5242,14 +5290,14 @@ body.is-threat-shaking .game-shell {
   .sketch-options {
     gap: 7px;
     grid-template-columns: 1fr;
-    grid-template-rows: repeat(4, minmax(58px, auto));
+    grid-template-rows: repeat(4, minmax(72px, auto));
     height: auto;
   }
 
-  .sketch-option {
+  .sketch-shell .sketch-option {
     gap: 9px;
     grid-template-columns: 30px minmax(0, 1fr);
-    min-height: 58px;
+    min-height: 72px;
     padding: 16px 24px;
   }
 
@@ -5260,8 +5308,8 @@ body.is-threat-shaking .game-shell {
   }
 
   .sketch-option strong {
-    font-size: clamp(0.74rem, 3.25vw, 0.9rem);
-    line-height: 1.18;
+    font-size: clamp(0.68rem, 2.9vw, 0.82rem);
+    line-height: 1.45;
   }
 
   .sketch-system-notice {
@@ -5276,11 +5324,11 @@ body.is-threat-shaking .game-shell {
   }
 
   .sketch-system-notice-card span {
-    font-size: 0.68rem;
+    font-size: 0.74rem;
   }
 
   .sketch-system-notice-card strong {
-    font-size: clamp(0.92rem, 4.5vw, 1.2rem);
+    font-size: clamp(1rem, 4.7vw, 1.28rem);
     line-height: 1.35;
   }
 
@@ -5337,6 +5385,19 @@ body.is-threat-shaking .game-shell {
     overflow-y: auto;
     padding: 20px;
     width: calc(100% - 28px);
+  }
+
+  .sketch-result-hero {
+    gap: 10px;
+    grid-template-columns: minmax(0, 1fr) minmax(105px, 30%);
+  }
+
+  .sketch-result-character {
+    height: clamp(135px, 36vw, 190px);
+  }
+
+  .sketch-result-heading > span {
+    font-size: 0.76rem;
   }
 
   .sketch-result-grid {

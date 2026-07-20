@@ -1,0 +1,427 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NBS Quiz Chill Sketch Fit Draft</title>
+    <style>
+      :root {
+        --ink: #2f3349;
+        --paper: #fffaf1;
+        --paper-soft: #f7eedf;
+        --peach: #f6ad91;
+        --peach-deep: #ef8d70;
+        --mint: #bad7c6;
+        --line: #4c5068;
+        --shadow: rgba(47, 51, 73, 0.18);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        color: var(--ink);
+        background:
+          radial-gradient(circle at top left, rgba(246, 173, 145, 0.24), transparent 34rem),
+          linear-gradient(135deg, #fffdf8 0%, #f4eadb 100%);
+        font-family:
+          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+          sans-serif;
+      }
+
+      .page {
+        display: grid;
+        grid-template-columns: minmax(360px, 430px) minmax(320px, 1fr);
+        gap: 34px;
+        align-items: center;
+        width: min(1180px, calc(100vw - 36px));
+        min-height: 100vh;
+        margin: 0 auto;
+        padding: 34px 0;
+      }
+
+      .phone {
+        position: relative;
+        width: min(390px, 100%);
+        aspect-ratio: 390 / 844;
+        margin: 0 auto;
+        overflow: hidden;
+        border: 4px solid var(--ink);
+        border-radius: 38px;
+        background: var(--paper);
+        box-shadow: 0 28px 70px var(--shadow);
+      }
+
+      .phone::before {
+        content: "";
+        position: absolute;
+        top: 12px;
+        left: 50%;
+        z-index: 20;
+        width: 82px;
+        height: 6px;
+        border-radius: 999px;
+        background: rgba(47, 51, 73, 0.3);
+        transform: translateX(-50%);
+      }
+
+      .game-screen {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        padding: 28px 16px 18px;
+      }
+
+      .scene {
+        position: relative;
+        flex: 0 0 52%;
+        overflow: hidden;
+        border: 2px solid var(--line);
+        border-radius: 26px;
+        background: #fff;
+      }
+
+      .scene img {
+        width: 100%;
+        height: 100%;
+        display: block;
+        object-fit: contain;
+        object-position: center;
+        filter: saturate(0.75) contrast(1.04);
+      }
+
+      .hud {
+        position: absolute;
+        top: 16px;
+        left: 16px;
+        right: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        z-index: 3;
+        pointer-events: none;
+      }
+
+      .pill {
+        border: 2px solid var(--ink);
+        border-radius: 999px;
+        background: rgba(255, 250, 241, 0.92);
+        box-shadow: 3px 4px 0 rgba(47, 51, 73, 0.12);
+        color: var(--ink);
+        font-weight: 800;
+        font-size: 11px;
+        letter-spacing: 0.04em;
+        padding: 7px 11px;
+        text-transform: uppercase;
+      }
+
+      .dialogue {
+        margin-top: 12px;
+        border: 3px solid var(--ink);
+        border-radius: 24px;
+        background: rgba(255, 250, 241, 0.96);
+        box-shadow: 5px 6px 0 rgba(47, 51, 73, 0.14);
+        padding: 16px;
+      }
+
+      .dialogue small {
+        display: block;
+        margin-bottom: 7px;
+        color: var(--peach-deep);
+        font-weight: 900;
+        font-size: 11px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .dialogue p {
+        min-height: 64px;
+        margin: 0;
+        color: var(--ink);
+        font-size: 17px;
+        font-weight: 800;
+        line-height: 1.25;
+      }
+
+      .options {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 9px;
+        margin-top: 12px;
+      }
+
+      .option {
+        min-height: 44px;
+        border: 2px solid var(--ink);
+        border-radius: 16px;
+        background: var(--peach);
+        box-shadow: 3px 4px 0 rgba(47, 51, 73, 0.14);
+        color: var(--ink);
+        font-weight: 900;
+        font-size: 13px;
+        text-align: left;
+        padding: 9px 10px;
+      }
+
+      .option span {
+        display: inline-grid;
+        place-items: center;
+        width: 22px;
+        height: 22px;
+        margin-right: 6px;
+        border: 2px solid var(--ink);
+        border-radius: 999px;
+        background: var(--paper);
+        font-size: 11px;
+      }
+
+      .panel {
+        padding: 8px 0;
+      }
+
+      .eyebrow {
+        margin: 0 0 8px;
+        color: var(--peach-deep);
+        font-size: 13px;
+        font-weight: 900;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+      }
+
+      h1 {
+        max-width: 640px;
+        margin: 0;
+        color: var(--ink);
+        font-size: clamp(34px, 5vw, 58px);
+        line-height: 0.98;
+        letter-spacing: -0.03em;
+      }
+
+      .summary {
+        max-width: 600px;
+        margin: 18px 0 0;
+        color: #575b74;
+        font-size: 19px;
+        line-height: 1.5;
+      }
+
+      .nav {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 9px;
+        margin: 28px 0;
+      }
+
+      .nav button {
+        border: 2px solid var(--ink);
+        border-radius: 999px;
+        background: var(--paper);
+        box-shadow: 2px 3px 0 rgba(47, 51, 73, 0.12);
+        color: var(--ink);
+        cursor: pointer;
+        font-weight: 850;
+        padding: 9px 13px;
+      }
+
+      .nav button.is-active {
+        background: var(--peach);
+      }
+
+      .notes {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+        max-width: 720px;
+      }
+
+      .note-card {
+        border: 2px solid var(--line);
+        border-radius: 22px;
+        background: rgba(255, 250, 241, 0.72);
+        padding: 18px;
+      }
+
+      .note-card h2 {
+        margin: 0 0 9px;
+        color: var(--ink);
+        font-size: 17px;
+      }
+
+      .note-card ul {
+        margin: 0;
+        padding-left: 18px;
+        color: #575b74;
+        line-height: 1.45;
+      }
+
+      @media (max-width: 860px) {
+        .page {
+          grid-template-columns: 1fr;
+          padding: 20px 0 34px;
+        }
+
+        .panel {
+          order: -1;
+        }
+
+        .notes {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <section class="phone" aria-label="Mobile quiz fit draft">
+        <div class="game-screen">
+          <div class="scene">
+            <img id="sceneImage" alt="" src="sketch-board-preview/page-01.png" />
+            <div class="hud">
+              <span class="pill" id="progressPill">Premise</span>
+              <span class="pill">SFX on</span>
+            </div>
+          </div>
+          <div class="dialogue">
+            <small id="screenLabel">Premise</small>
+            <p id="dialogueText">Welcome, player. You have been dropped into the NBS freshman arc.</p>
+          </div>
+          <div class="options">
+            <button class="option" type="button"><span>A</span><b id="optionA">Start</b></button>
+            <button class="option" type="button"><span>B</span><b id="optionB">Observe</b></button>
+            <button class="option" type="button"><span>C</span><b id="optionC">Ask</b></button>
+            <button class="option" type="button"><span>D</span><b id="optionD">Vibe</b></button>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <p class="eyebrow">Chill sketch fit draft</p>
+        <h1>Testing the cute black-and-white illustration style inside the mobile quiz.</h1>
+        <p class="summary">
+          This is a rough visual fit check using the student designer's sketch-board pages as
+          temporary assets. It is not the final UI yet; it is mainly to see whether the softer,
+          hand-drawn direction works better than the previous pixel/RPG look.
+        </p>
+
+        <nav class="nav" aria-label="Screen picker" id="screenNav"></nav>
+
+        <div class="notes">
+          <article class="note-card">
+            <h2>Fit direction</h2>
+            <ul>
+              <li>Use illustration as the emotional main scene.</li>
+              <li>Keep UI soft, rounded, and readable.</li>
+              <li>Question text should stay short on mobile.</li>
+              <li>Options should remain large thumb-friendly buttons.</li>
+            </ul>
+          </article>
+
+          <article class="note-card">
+            <h2>Designer asset needs</h2>
+            <ul>
+              <li>Final clean line-art scene per question.</li>
+              <li>Separate character and popup illustrations where possible.</li>
+              <li>Portrait-safe composition for 390 x 844 px mobile screens.</li>
+              <li>Optional peach highlight panels as separate UI assets.</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      const screens = [
+        {
+          id: "Premise",
+          image: "sketch-board-preview/page-01.png",
+          text: "Welcome, player. You have been dropped into the NBS freshman arc.",
+          options: ["Start", "Look around", "Ask", "Vibe"],
+        },
+        {
+          id: "Q1",
+          image: "sketch-board-preview/page-03.png",
+          text: "Four starter packs appear at WCY Plaza. Which one do you pick?",
+          options: ["Planner", "Iced coffee", "Snacks", "Mystery"],
+        },
+        {
+          id: "Q2",
+          image: "sketch-board-preview/page-05.png",
+          text: "Orientation begins. Cheers, seniors, and friend groups form instantly.",
+          options: ["Observe", "Talk", "Pair up", "Wait"],
+        },
+        {
+          id: "Q3",
+          image: "sketch-board-preview/page-07.png",
+          text: "You are lost again. The class location is somewhere beyond this corridor.",
+          options: ["Map", "Ask", "Pretend", "Leave"],
+        },
+        {
+          id: "Q4",
+          image: "sketch-board-preview/page-09.png",
+          text: "The group chat appears. Nobody says anything. What do you do?",
+          options: ["Plan", "Icebreak", "Do part", "We ball"],
+        },
+        {
+          id: "Q5",
+          image: "sketch-board-preview/page-11.png",
+          text: "The CCA fair reroutes your escape. Your move?",
+          options: ["Research", "Join all", "Freebies", "Friend"],
+        },
+        {
+          id: "Q6",
+          image: "sketch-board-preview/page-13.png",
+          text: "Notifications stack. The Burnout Monster has spawned.",
+          options: ["Lock in", "Text friends", "Nap", "Endure"],
+        },
+        {
+          id: "Q7",
+          image: "sketch-board-preview/page-16.png",
+          text: "Finals in 14 days. The countdown begins.",
+          options: ["Revise", "One outing", "Still time", "Panic"],
+        },
+        {
+          id: "Q8",
+          image: "sketch-board-preview/page-18.png",
+          text: "A glowing weekend portal opens. How do you spend the instance?",
+          options: ["Study", "Cafe hop", "Sleep", "Scroll"],
+        },
+      ];
+
+      const nav = document.querySelector("#screenNav");
+      const image = document.querySelector("#sceneImage");
+      const label = document.querySelector("#screenLabel");
+      const progress = document.querySelector("#progressPill");
+      const dialogue = document.querySelector("#dialogueText");
+      const optionIds = ["optionA", "optionB", "optionC", "optionD"];
+
+      function setScreen(index) {
+        const screen = screens[index];
+        image.src = screen.image;
+        label.textContent = screen.id;
+        progress.textContent = screen.id === "Premise" ? "Premise" : `${screen.id} / 8`;
+        dialogue.textContent = screen.text;
+        optionIds.forEach((id, optionIndex) => {
+          document.querySelector(`#${id}`).textContent = screen.options[optionIndex];
+        });
+        [...nav.children].forEach((button, buttonIndex) => {
+          button.classList.toggle("is-active", buttonIndex === index);
+        });
+      }
+
+      screens.forEach((screen, index) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.textContent = screen.id;
+        button.addEventListener("click", () => setScreen(index));
+        nav.appendChild(button);
+      });
+
+      setScreen(0);
+    </script>
+  </body>
+</html>

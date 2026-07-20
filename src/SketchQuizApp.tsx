@@ -95,6 +95,14 @@ const startLayers = ["img_3686.png"];
 const resultLayers = ["img_3713.png"];
 const calculationDelayMs = 1250;
 const optionRevealDelayMs = 400;
+const resultCharacterAssets: Record<OutcomeId, string> = {
+  lostButVibing: "/assets/result-characters/lost-but-vibing.png",
+  lowkeyStrategist: "/assets/result-characters/quiet-grinder.png",
+  overachiever: "/assets/result-characters/overachiever.png",
+  socialButterfly: "/assets/result-characters/social-butterfly.png",
+  softSupporter: "/assets/result-characters/soft-supporter.png",
+  weBallAgent: "/assets/result-characters/we-ball-agent.png",
+};
 
 function getSketchNoticeDuration(kind: SketchNotice["kind"]) {
   return kind === "warning" ? 4500 : 3800;
@@ -116,7 +124,7 @@ const sketchPreludeSteps: SketchPreludeStep[] = [
     tone: "flicker",
   },
   {
-    autoAdvanceMs: 3000,
+    autoAdvanceMs: 3200,
     kind: "notice",
     notice: {
       body: "",
@@ -127,7 +135,7 @@ const sketchPreludeSteps: SketchPreludeStep[] = [
     tone: "hologram",
   },
   {
-    autoAdvanceMs: 3200,
+    autoAdvanceMs: 3800,
     foreground: "img_3689.png",
     kind: "notice",
     notice: {
@@ -139,7 +147,7 @@ const sketchPreludeSteps: SketchPreludeStep[] = [
     tone: "hologram",
   },
   {
-    autoAdvanceMs: 3400,
+    autoAdvanceMs: 4000,
     foreground: "img_3689.png",
     kind: "notice",
     notice: {
@@ -456,7 +464,6 @@ function getSketchDialogueBeats(question: (typeof quizQuestions)[number]) {
         "Loud cheers.",
         "Seniors hyping the crowd.",
         "Friend groups forming in real time.",
-        "You’ve entered the Orientation Arena.",
         '"Looks like I have to survive this Orientation event... what should I do...?"',
       ];
     case "finding-your-class":
@@ -520,16 +527,6 @@ function getSketchNotice(
   beatIndex: number,
 ): SketchNotice | null {
   switch (questionId) {
-    case "orientation-arena":
-      return beatIndex === 4
-        ? {
-            advanceOnClose: true,
-            body: "Difficulty: ???",
-            key: "orientation-event",
-            kind: "event",
-            title: "Event: The Orientation",
-          }
-        : null;
     case "finding-your-class":
       if (beatIndex === 0) {
         return {
@@ -621,6 +618,32 @@ function getSketchNotice(
     default:
       return null;
   }
+}
+
+function getSketchNotices(
+  questionId: (typeof quizQuestions)[number]["id"],
+  beatIndex: number,
+): SketchNotice[] {
+  if (questionId === "orientation-arena" && beatIndex === 3) {
+    return [
+      {
+        body: "",
+        key: "orientation-arena-entry",
+        kind: "info",
+        title: "You’ve entered the Orientation Arena.",
+      },
+      {
+        advanceOnClose: true,
+        body: "Difficulty: ???",
+        key: "orientation-event",
+        kind: "event",
+        title: "Event: The Orientation",
+      },
+    ];
+  }
+
+  const notice = getSketchNotice(questionId, beatIndex);
+  return notice ? [notice] : [];
 }
 
 function getSketchVisualBeats(
@@ -1051,6 +1074,7 @@ function SketchPreludeScreen({ onComplete }: { onComplete: () => void }) {
       {currentStep.kind === "notice" && (
         <SketchSystemNotice
           durationMs={currentStep.autoAdvanceMs}
+          key={currentStep.notice.key}
           notice={currentStep.notice}
         />
       )}
@@ -1075,9 +1099,9 @@ function SketchQuestionScreen({
   const [optionsVisible, setOptionsVisible] = useState(false);
   const [groupChatOpen, setGroupChatOpen] = useState(false);
   const burnoutNotificationSoundPlayedRef = useRef(false);
-  const [acknowledgedNoticeKey, setAcknowledgedNoticeKey] = useState<
-    string | null
-  >(null);
+  const [acknowledgedNoticeKeys, setAcknowledgedNoticeKeys] = useState<
+    string[]
+  >([]);
   const dialogueBeats = useMemo(() => getSketchDialogueBeats(question), [question]);
   const currentBeatText = dialogueBeats[beatIndex] ?? dialogueBeats[0] ?? "";
   const isFinalBeat = beatIndex >= dialogueBeats.length - 1;
@@ -1099,16 +1123,15 @@ function SketchQuestionScreen({
     [beatIndex, question.id, scene.foreground],
   );
   const optionsActive = isFinalBeat && optionsVisible;
-  const beatNotice = useMemo(
-    () => getSketchNotice(question.id, beatIndex),
+  const beatNotices = useMemo(
+    () => getSketchNotices(question.id, beatIndex),
     [beatIndex, question.id],
   );
   const activeNotice =
-    !sceneIntroVisible &&
-    !isTyping &&
-    beatNotice &&
-    acknowledgedNoticeKey !== beatNotice.key
-      ? beatNotice
+    !sceneIntroVisible && !isTyping
+      ? beatNotices.find(
+          (notice) => !acknowledgedNoticeKeys.includes(notice.key),
+        ) ?? null
       : null;
   const showBurnoutNotifications =
     question.id === "burnout-monster" &&
@@ -1122,7 +1145,7 @@ function SketchQuestionScreen({
     setBeatIndex(0);
     setOptionsVisible(false);
     setGroupChatOpen(false);
-    setAcknowledgedNoticeKey(null);
+    setAcknowledgedNoticeKeys([]);
     playSketchSceneSound(currentIndex);
   }, [currentIndex, question.id]);
 
@@ -1139,7 +1162,7 @@ function SketchQuestionScreen({
   }, [showBurnoutNotifications]);
 
   useEffect(() => {
-    setAcknowledgedNoticeKey(null);
+    setAcknowledgedNoticeKeys([]);
   }, [beatIndex, question.id]);
 
   useEffect(() => {
@@ -1153,7 +1176,7 @@ function SketchQuestionScreen({
       return;
     }
 
-    setAcknowledgedNoticeKey(activeNotice.key);
+    setAcknowledgedNoticeKeys((keys) => [...keys, activeNotice.key]);
 
     if (activeNotice.advanceOnClose && !isFinalBeat) {
       setBeatIndex((index) => index + 1);
@@ -1306,6 +1329,7 @@ function SketchQuestionScreen({
       {activeNotice && (
         <SketchSystemNotice
           durationMs={getSketchNoticeDuration(activeNotice.kind)}
+          key={activeNotice.key}
           notice={activeNotice}
         />
       )}
@@ -1511,9 +1535,18 @@ function SketchResultScreen({
 
   return (
     <section className="sketch-result-card">
-      <span>Freshman Type Revealed</span>
-      <h1>{cleanText(result.name)}</h1>
-      <p className="sketch-motto">"{cleanText(result.motto)}"</p>
+      <div className="sketch-result-hero">
+        <div className="sketch-result-heading">
+          <span>Freshman Type Revealed</span>
+          <h1>{cleanText(result.name)}</h1>
+          <p className="sketch-motto">"{cleanText(result.motto)}"</p>
+        </div>
+        <img
+          alt={`${cleanText(result.name)} character illustration`}
+          className="sketch-result-character"
+          src={resultCharacterAssets[result.id]}
+        />
+      </div>
 
       <div className="sketch-result-grid">
         <section>
