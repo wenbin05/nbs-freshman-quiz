@@ -3,6 +3,42 @@ import type { ResultProfile } from "../types";
 const storyWidth = 1080;
 const storyHeight = 1920;
 
+const resultPalette: Record<
+  ResultProfile["id"],
+  { accent: string; panel: string; soft: string }
+> = {
+  lostButVibing: {
+    accent: "#e6785f",
+    panel: "#ffd3c2",
+    soft: "#fff0e9",
+  },
+  lowkeyStrategist: {
+    accent: "#3374a8",
+    panel: "#cce7f8",
+    soft: "#edf8ff",
+  },
+  overachiever: {
+    accent: "#5d8d46",
+    panel: "#d9efc5",
+    soft: "#f2faeb",
+  },
+  socialButterfly: {
+    accent: "#d55f78",
+    panel: "#ffd2db",
+    soft: "#fff0f3",
+  },
+  softSupporter: {
+    accent: "#8e6ab5",
+    panel: "#e7d5f5",
+    soft: "#f7f0fc",
+  },
+  weBallAgent: {
+    accent: "#d49a26",
+    panel: "#ffe8a9",
+    soft: "#fff8df",
+  },
+};
+
 function loadImage(src: string) {
   return new Promise<HTMLImageElement>((resolve, reject) => {
     const image = new Image();
@@ -24,6 +60,68 @@ function canvasToBlob(canvas: HTMLCanvasElement) {
   });
 }
 
+function roundedRect(
+  context: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  radius: number,
+) {
+  const corner = Math.min(radius, width / 2, height / 2);
+
+  context.beginPath();
+  context.moveTo(x + corner, y);
+  context.lineTo(x + width - corner, y);
+  context.quadraticCurveTo(x + width, y, x + width, y + corner);
+  context.lineTo(x + width, y + height - corner);
+  context.quadraticCurveTo(
+    x + width,
+    y + height,
+    x + width - corner,
+    y + height,
+  );
+  context.lineTo(x + corner, y + height);
+  context.quadraticCurveTo(x, y + height, x, y + height - corner);
+  context.lineTo(x, y + corner);
+  context.quadraticCurveTo(x, y, x + corner, y);
+  context.closePath();
+}
+
+function drawCenteredLines(
+  context: CanvasRenderingContext2D,
+  text: string,
+  centerX: number,
+  startY: number,
+  maxWidth: number,
+  lineHeight: number,
+) {
+  const words = text.split(/\s+/);
+  const lines: string[] = [];
+  let currentLine = "";
+
+  for (const word of words) {
+    const candidate = currentLine ? `${currentLine} ${word}` : word;
+
+    if (context.measureText(candidate).width <= maxWidth || !currentLine) {
+      currentLine = candidate;
+    } else {
+      lines.push(currentLine);
+      currentLine = word;
+    }
+  }
+
+  if (currentLine) {
+    lines.push(currentLine);
+  }
+
+  lines.forEach((line, index) => {
+    context.fillText(line, centerX, startY + index * lineHeight);
+  });
+
+  return lines.length;
+}
+
 export async function createResultStoryImage(
   result: ResultProfile,
   resultCardSrc: string,
@@ -38,21 +136,57 @@ export async function createResultStoryImage(
   canvas.width = storyWidth;
   canvas.height = storyHeight;
 
+  await document.fonts?.ready;
+
+  const palette = resultPalette[result.id];
   const wash = context.createLinearGradient(0, 0, storyWidth, storyHeight);
-  wash.addColorStop(0, "#f7fbff");
-  wash.addColorStop(0.55, "#e5f1ff");
-  wash.addColorStop(1, "#ffece5");
+  wash.addColorStop(0, "#f9fcff");
+  wash.addColorStop(0.52, palette.soft);
+  wash.addColorStop(1, "#e7f2ff");
   context.fillStyle = wash;
   context.fillRect(0, 0, storyWidth, storyHeight);
 
+  context.globalAlpha = 0.22;
+  context.fillStyle = palette.accent;
+  for (let y = 34; y < storyHeight; y += 54) {
+    for (let x = 34 + ((y / 54) % 2) * 27; x < storyWidth; x += 54) {
+      context.beginPath();
+      context.arc(x, y, 3, 0, Math.PI * 2);
+      context.fill();
+    }
+  }
+  context.globalAlpha = 1;
+
+  context.fillStyle = "#24568f";
+  context.font = '30px "Silkscreen", monospace';
+  context.textAlign = "center";
+  context.fillText("NBS WELCOME DAY", storyWidth / 2, 72);
+
   context.fillStyle = "#24568f";
   context.font = '52px "Silkscreen", monospace';
-  context.textAlign = "center";
-  context.fillText("WHAT NBS FRESHMAN ARE YOU?", storyWidth / 2, 112);
+  drawCenteredLines(
+    context,
+    "WHAT NBS FRESHMAN ARE YOU?",
+    storyWidth / 2,
+    142,
+    950,
+    62,
+  );
+
+  roundedRect(context, 158, 218, 764, 62, 31);
+  context.fillStyle = "#d3e8f9";
+  context.fill();
+  context.fillStyle = "#24568f";
+  context.font = '24px "Silkscreen", monospace';
+  context.fillText(
+    "YOUR CHOICE. YOUR VIBE. YOUR NBS STORY.",
+    storyWidth / 2,
+    258,
+  );
 
   const resultCard = await loadImage(resultCardSrc);
-  const maxCardWidth = 880;
-  const maxCardHeight = 1450;
+  const maxCardWidth = 900;
+  const maxCardHeight = 1020;
   const scale = Math.min(
     maxCardWidth / resultCard.naturalWidth,
     maxCardHeight / resultCard.naturalHeight,
@@ -60,19 +194,61 @@ export async function createResultStoryImage(
   const cardWidth = resultCard.naturalWidth * scale;
   const cardHeight = resultCard.naturalHeight * scale;
   const cardX = (storyWidth - cardWidth) / 2;
-  const cardY = 190;
+  const cardY = 330;
 
   context.shadowColor = "rgba(31, 61, 98, 0.2)";
-  context.shadowBlur = 30;
-  context.shadowOffsetY = 18;
+  context.shadowBlur = 26;
+  context.shadowOffsetY = 14;
   context.drawImage(resultCard, cardX, cardY, cardWidth, cardHeight);
   context.shadowColor = "transparent";
 
+  const resultPanelY = Math.min(cardY + cardHeight + 46, 1390);
+  roundedRect(context, 90, resultPanelY, 900, 300, 42);
+  context.fillStyle = palette.panel;
+  context.fill();
+  context.lineWidth = 5;
+  context.strokeStyle = palette.accent;
+  context.stroke();
+
+  context.fillStyle = palette.accent;
+  context.font = '26px "Silkscreen", monospace';
+  context.fillText("MY FRESHMAN TYPE", storyWidth / 2, resultPanelY + 54);
+
+  context.fillStyle = "#173d70";
+  context.font = '46px "Silkscreen", monospace';
+  const nameLineCount = drawCenteredLines(
+    context,
+    result.name,
+    storyWidth / 2,
+    resultPanelY + 118,
+    790,
+    56,
+  );
+
+  const tagsY = resultPanelY + 142 + nameLineCount * 50;
+  const visibleTags = result.tags.slice(0, 3).join("   ");
   context.fillStyle = "#24568f";
-  context.font = '34px "Silkscreen", monospace';
-  context.fillText("NBS WELCOME DAY", storyWidth / 2, 1810);
+  context.font = '23px "Silkscreen", monospace';
+  context.fillText(visibleTags, storyWidth / 2, Math.min(tagsY, resultPanelY + 252));
+
+  context.fillStyle = "#24568f";
+  context.font = '24px "Silkscreen", monospace';
+  context.fillText("WHAT TYPE DID YOU GET?", storyWidth / 2, 1772);
+
+  context.strokeStyle = palette.accent;
+  context.lineWidth = 4;
+  context.beginPath();
+  context.moveTo(220, 1805);
+  context.lineTo(860, 1805);
+  context.stroke();
+
+  context.fillStyle = "#24568f";
   context.font = '25px "Silkscreen", monospace';
-  context.fillText(`#${result.tags[0]?.replace(/^#/, "") ?? "NBSFreshman"}`, storyWidth / 2, 1865);
+  context.fillText(
+    `${result.tags[0] ?? "#NBSFreshman"}  #NBSWelcomeDay`,
+    storyWidth / 2,
+    1860,
+  );
 
   return canvasToBlob(canvas);
 }
