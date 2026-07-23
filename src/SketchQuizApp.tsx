@@ -22,6 +22,8 @@ import type {
   ScreenPhase,
   SelectedAnswer,
 } from "./types";
+import { createAttemptId, trackQuizEvent } from "./utils/analytics";
+import { shareResultStory } from "./utils/shareResult";
 import { cleanText } from "./utils/text";
 
 type SketchQuizState = {
@@ -40,6 +42,7 @@ type SketchAction =
   | { type: "RESTART" };
 
 const designerAsset = "/assets/designer-elements/";
+const mobileDraftAsset = "/assets/mobile-draft-3/";
 
 type SketchForegroundAsset = {
   src: string;
@@ -57,7 +60,14 @@ type SketchSceneConfig = {
   pane: "designer" | "custom";
 };
 
+type SketchMobileArtConfig = {
+  background: string;
+  backgroundOverlays?: string[];
+  overlays?: string[];
+};
+
 type SketchNotice = {
+  art?: string;
   body: string;
   key: string;
   kind: "event" | "info" | "warning";
@@ -93,16 +103,74 @@ type SketchPreludeStep =
 
 const startLayers = ["img_3686.png"];
 const resultLayers = ["img_3713.png"];
-const calculationDelayMs = 1250;
+const calculationDelayMs = 3800;
 const optionRevealDelayMs = 400;
-const resultCharacterAssets: Record<OutcomeId, string> = {
-  lostButVibing: "/assets/result-characters/lost-but-vibing.png",
-  lowkeyStrategist: "/assets/result-characters/quiet-grinder.png",
-  overachiever: "/assets/result-characters/overachiever.png",
-  socialButterfly: "/assets/result-characters/social-butterfly.png",
-  softSupporter: "/assets/result-characters/soft-supporter.png",
-  weBallAgent: "/assets/result-characters/we-ball-agent.png",
+const resultDesignerCards: Record<OutcomeId, string> = {
+  lostButVibing: `${mobileDraftAsset}result-lost-but-vibing-clear.png`,
+  lowkeyStrategist: `${mobileDraftAsset}result-quiet-grinder-clear.png`,
+  overachiever: `${mobileDraftAsset}result-overachiever-clear.png`,
+  socialButterfly: `${mobileDraftAsset}result-social-butterfly-clear.png`,
+  softSupporter: `${mobileDraftAsset}result-soft-supporter-clear.png`,
+  weBallAgent: `${mobileDraftAsset}result-we-ball-agent-clear.png`,
 };
+
+function getSketchMobileQuestionArt(
+  questionId: (typeof quizQuestions)[number]["id"],
+  beatIndex: number,
+): SketchMobileArtConfig | null {
+  switch (questionId) {
+    case "character-spawn":
+      return {
+        background: "premise-bg.webp",
+        overlays: ["q1-character.webp", "q1-element.webp"],
+      };
+    case "orientation-arena":
+      return {
+        background: "q2-orientation.webp",
+        backgroundOverlays:
+          beatIndex >= 1 && beatIndex <= 3
+            ? ["q2-orientation-extras.webp"]
+            : [],
+        overlays:
+          beatIndex === 0 || beatIndex >= 4
+            ? ["q2-q5-character.webp"]
+            : [],
+      };
+    case "finding-your-class":
+      return {
+        background: "q3-corridor.webp",
+        overlays: [beatIndex === 0 ? "q3-character.webp" : "q3-element.webp"],
+      };
+    case "group-project":
+      return {
+        background: "q4-classroom.webp",
+        overlays: ["q4-character.webp"],
+      };
+    case "cca-fair":
+      return {
+        background: "q5-cca-fair.webp",
+        overlays: [
+          ...(beatIndex >= 1 ? ["q2-q5-character.webp"] : []),
+          ...(beatIndex === 2 ? ["q5-characters.webp"] : []),
+        ],
+      };
+    case "burnout-monster":
+      return {
+        background: beatIndex >= 3 ? "q6-monster.webp" : "q6-stress.webp",
+      };
+    case "finals-mode":
+      return {
+        background: beatIndex >= 1 ? "q7-finals-stress.webp" : "q7-less-stress.webp",
+      };
+    case "weekend-portal":
+      return {
+        background: "q8-portal.webp",
+        overlays: ["q8-character.webp"],
+      };
+    default:
+      return null;
+  }
+}
 
 function getSketchNoticeDuration(kind: SketchNotice["kind"]) {
   return kind === "warning" ? 4500 : 3800;
@@ -127,6 +195,7 @@ const sketchPreludeSteps: SketchPreludeStep[] = [
     autoAdvanceMs: 3200,
     kind: "notice",
     notice: {
+      art: "popup-01.webp",
       body: "",
       key: "prelude-system-update",
       kind: "info",
@@ -139,6 +208,7 @@ const sketchPreludeSteps: SketchPreludeStep[] = [
     foreground: "img_3689.png",
     kind: "notice",
     notice: {
+      art: "popup-02.webp",
       body: "The Freshman Arc has begun.",
       key: "prelude-welcome",
       kind: "info",
@@ -151,6 +221,7 @@ const sketchPreludeSteps: SketchPreludeStep[] = [
     foreground: "img_3689.png",
     kind: "notice",
     notice: {
+      art: "popup-03.webp",
       body: "Complete events to determine your build.",
       key: "prelude-quest-log",
       kind: "event",
@@ -178,6 +249,7 @@ const sketchPreludeSteps: SketchPreludeStep[] = [
     foreground: "img_3689.png",
     kind: "notice",
     notice: {
+      art: "popup-04.webp",
       body: "Attend The Orientation.",
       key: "prelude-orientation-objective",
       kind: "event",
@@ -527,29 +599,10 @@ function getSketchNotice(
   beatIndex: number,
 ): SketchNotice | null {
   switch (questionId) {
-    case "finding-your-class":
-      if (beatIndex === 0) {
-        return {
-          advanceOnClose: true,
-          body: "Attend Your First Class.",
-          key: "class-objective",
-          kind: "info",
-          title: "New Objective Unlocked",
-        };
-      }
-
-      return beatIndex === 1
-        ? {
-            advanceOnClose: true,
-            body: "Find your first class before lecture starts.",
-            key: "navigation-challenge",
-            kind: "event",
-            title: "NAVIGATION CHALLENGE INITIATED",
-          }
-        : null;
     case "group-project":
       return beatIndex === 0
         ? {
+            art: "popup-08.webp",
             body: "Team dynamics unknown.",
             key: "group-project-event",
             kind: "event",
@@ -560,6 +613,7 @@ function getSketchNotice(
       return beatIndex === 2
         ? {
             advanceOnClose: true,
+            art: "popup-09.webp",
             body: "Survive CCA Fair",
             key: "cca-fair-event",
             kind: "event",
@@ -570,6 +624,7 @@ function getSketchNotice(
       if (beatIndex === 2) {
         return {
           advanceOnClose: true,
+          art: "popup-10.webp",
           body: "Stress meter exceeding recommended limits.",
           key: "system-overload",
           kind: "warning",
@@ -589,7 +644,8 @@ function getSketchNotice(
     case "finals-mode":
       return beatIndex === 1
         ? {
-            advanceOnClose: true,
+          advanceOnClose: true,
+          art: "popup-11.webp",
             body: "Revision timer activated.",
             key: "finals-warning",
             kind: "warning",
@@ -600,6 +656,7 @@ function getSketchNotice(
       if (beatIndex === 0) {
         return {
           advanceOnClose: true,
+          art: "popup-12.webp",
           body: "(48 HOURS ONLY)",
           key: "weekend-instance",
           kind: "event",
@@ -609,6 +666,7 @@ function getSketchNotice(
 
       return beatIndex === 1
         ? {
+            art: "popup-13.webp",
             body: "",
             key: "weekend-alert",
             kind: "warning",
@@ -634,10 +692,31 @@ function getSketchNotices(
       },
       {
         advanceOnClose: true,
+        art: "popup-05.webp",
         body: "Difficulty: ???",
         key: "orientation-event",
         kind: "event",
         title: "Event: The Orientation",
+      },
+    ];
+  }
+
+  if (questionId === "finding-your-class" && beatIndex === 0) {
+    return [
+      {
+        art: "popup-06.webp",
+        body: "Attend Your First Class.",
+        key: "class-objective",
+        kind: "info",
+        title: "New Objective Unlocked",
+      },
+      {
+        advanceOnClose: true,
+        art: "popup-07.webp",
+        body: "Find your first class before lecture starts.",
+        key: "navigation-challenge",
+        kind: "event",
+        title: "NAVIGATION CHALLENGE INITIATED",
       },
     ];
   }
@@ -800,6 +879,99 @@ function SketchSceneLayers({
   );
 }
 
+function SketchMobileArt({
+  art,
+  className = "",
+}: {
+  art: SketchMobileArtConfig;
+  className?: string;
+}) {
+  const [backgroundState, setBackgroundState] = useState<{
+    current: string;
+    previous: string | null;
+  }>({ current: art.background, previous: null });
+
+  useEffect(() => {
+    if (backgroundState.current === art.background) {
+      return;
+    }
+
+    setBackgroundState((state) => ({
+      current: art.background,
+      previous: state.current,
+    }));
+  }, [art.background, backgroundState.current]);
+
+  useEffect(() => {
+    if (!backgroundState.previous) {
+      return;
+    }
+
+    const timeout = window.setTimeout(() => {
+      setBackgroundState((state) => ({ ...state, previous: null }));
+    }, 760);
+
+    return () => window.clearTimeout(timeout);
+  }, [backgroundState.previous]);
+
+  const getAssetClass = (asset: string) =>
+    `mobile-asset-${asset
+      .replace(/\.[^.]+$/, "")
+      .replace(/[^a-z0-9]+/gi, "-")}`;
+
+  return (
+    <>
+      <div
+        aria-hidden="true"
+        className={`sketch-mobile-art ${className}`.trim()}
+      >
+        {backgroundState.previous && (
+          <img
+            alt=""
+            className="sketch-mobile-art-background is-previous"
+            src={`${mobileDraftAsset}${backgroundState.previous}`}
+          />
+        )}
+        <img
+          alt=""
+          className="sketch-mobile-art-background is-current"
+          key={backgroundState.current}
+          src={`${mobileDraftAsset}${backgroundState.current}`}
+        />
+        {art.backgroundOverlays && art.backgroundOverlays.length > 0 && (
+          <div className="sketch-mobile-art-illustration">
+            {art.backgroundOverlays.map((overlay, index) => (
+              <img
+                alt=""
+                className={`sketch-mobile-art-overlay ${getAssetClass(overlay)}`}
+                key={overlay}
+                src={`${mobileDraftAsset}${overlay}`}
+                style={{ "--mobile-art-index": index } as CSSProperties}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+      {art.overlays && art.overlays.length > 0 && (
+        <div
+          aria-hidden="true"
+          className={`sketch-mobile-foreground ${className}`.trim()}
+        >
+          {art.overlays.map((overlay, index) => (
+            <img
+              alt=""
+              className={`sketch-mobile-art-overlay ${getAssetClass(overlay)}`}
+              key={overlay}
+              src={`${mobileDraftAsset}${overlay}`}
+              style={{ "--mobile-art-index": index } as CSSProperties}
+            />
+          ))}
+        </div>
+      )}
+    </>
+  );
+}
+
 function getSketchQuestionScene(
   questionId: (typeof quizQuestions)[number]["id"],
   beatIndex: number,
@@ -895,6 +1067,9 @@ function SketchQuizApp() {
   const question = quizQuestions[state.currentQuestionIndex];
   const result = state.resultId ? resultProfiles[state.resultId] : null;
   const layers = getLayersForState(state);
+  const [attemptId, setAttemptId] = useState(createAttemptId);
+  const trackedResultRef = useRef<string | null>(null);
+  const hasMobileDraftArt = true;
   const showBuildSwitcher = new URLSearchParams(window.location.search).has(
     "debug",
   );
@@ -911,11 +1086,49 @@ function SketchQuizApp() {
     return () => window.clearTimeout(timeout);
   }, [state.phase]);
 
+  useEffect(() => {
+    if (
+      state.phase !== "calculating" ||
+      !state.resultId ||
+      trackedResultRef.current === attemptId
+    ) {
+      return;
+    }
+
+    trackedResultRef.current = attemptId;
+    trackQuizEvent({
+      attemptId,
+      eventType: "quiz_completed",
+      resultId: state.resultId,
+    });
+  }, [attemptId, state.phase, state.resultId]);
+
+  const handleStart = () => {
+    trackQuizEvent({ attemptId, eventType: "quiz_started" });
+    dispatch({ type: "START" });
+  };
+
+  const handleAnswer = (option: QuizOption) => {
+    trackQuizEvent({
+      attemptId,
+      eventType: "answer_selected",
+      optionId: option.id,
+      questionId: question.id,
+    });
+    dispatch({ type: "ANSWER", option });
+  };
+
+  const handleRestart = () => {
+    setAttemptId(createAttemptId());
+    trackedResultRef.current = null;
+    dispatch({ type: "RESTART" });
+  };
+
   return (
     <main
       className={`sketch-shell sketch-phase-${state.phase} sketch-q-${
         state.currentQuestionIndex + 1
-      }`}
+      } ${hasMobileDraftArt ? "has-mobile-draft-art" : ""}`}
     >
       <div className="sketch-backdrop" aria-hidden="true" />
       <section className="sketch-stage" aria-label="What NBS Freshman Are You?">
@@ -932,7 +1145,7 @@ function SketchQuizApp() {
         </div>
 
         {state.phase === "start" && (
-          <SketchStartScreen onStart={() => dispatch({ type: "START" })} />
+          <SketchStartScreen onStart={handleStart} />
         )}
 
         {state.phase === "prelude" && (
@@ -946,7 +1159,7 @@ function SketchQuizApp() {
             key={question.id}
             completedCount={state.selectedAnswers.length}
             currentIndex={state.currentQuestionIndex}
-            onAnswer={(option) => dispatch({ type: "ANSWER", option })}
+            onAnswer={handleAnswer}
             question={question}
           />
         )}
@@ -956,7 +1169,7 @@ function SketchQuizApp() {
         {state.phase === "result" && result && (
           <SketchResultScreen
             completedAnswers={state.selectedAnswers}
-            onRestart={() => dispatch({ type: "RESTART" })}
+            onRestart={handleRestart}
             result={result}
           />
         )}
@@ -973,33 +1186,90 @@ function SketchQuizApp() {
 
 function SketchStartScreen({ onStart }: { onStart: () => void }) {
   return (
-    <button
-      aria-label="Start What NBS Freshman Are You?"
-      className="sketch-start"
-      onClick={onStart}
-      type="button"
-    >
-      <span>What NBS Freshman Are You?</span>
-      <strong>Press Start</strong>
-      <small>NBS Welcome Day</small>
-    </button>
+    <>
+      <SketchMobileArt
+        art={{ background: "premise-bg-character.webp" }}
+        className="is-start-art"
+      />
+      <button
+        aria-label="Start What NBS Freshman Are You?"
+        className="sketch-start"
+        onClick={onStart}
+        type="button"
+      >
+        <span>What NBS Freshman Are You?</span>
+        <strong>Press Start</strong>
+        <small>NBS Welcome Day</small>
+      </button>
+    </>
   );
 }
 
 function SketchPreludeScreen({ onComplete }: { onComplete: () => void }) {
   const [step, setStep] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const transitionMidpointRef = useRef<number | null>(null);
+  const transitionEndRef = useRef<number | null>(null);
   const currentStep = sketchPreludeSteps[step] ?? sketchPreludeSteps[0];
   const showWelcomePane = Boolean(currentStep.showWelcomePane);
   const toneClass = currentStep.tone ? `is-${currentStep.tone}` : "";
+  const mobilePreludeArt: SketchMobileArtConfig =
+    step === 0
+      ? { background: "premise-bg-character.webp" }
+      : step === 1
+        ? { background: "premise-bg-wind.webp" }
+        : step === 2
+          ? {
+              background: "premise-bg.webp",
+              overlays: ["premise-character.webp"],
+            }
+          : step === 5
+            ? { background: "premise-bg-with-character.webp" }
+            : step === 6
+              ? {
+                  background: "premise-bg.webp",
+                  overlays: ["premise-character.webp"],
+                }
+            : {
+                background: "premise-bg.webp",
+                overlays: ["premise-character.webp"],
+              };
 
   const advancePrelude = useCallback(() => {
+    if (isTransitioning) {
+      return;
+    }
+
+    if (step === 0) {
+      setIsTransitioning(true);
+      transitionMidpointRef.current = window.setTimeout(() => {
+        setStep(1);
+      }, 350);
+      transitionEndRef.current = window.setTimeout(() => {
+        setIsTransitioning(false);
+      }, 700);
+      return;
+    }
+
     if (step >= sketchPreludeSteps.length - 1) {
       onComplete();
       return;
     }
 
     setStep((currentStepIndex) => currentStepIndex + 1);
-  }, [onComplete, step]);
+  }, [isTransitioning, onComplete, step]);
+
+  useEffect(
+    () => () => {
+      if (transitionMidpointRef.current !== null) {
+        window.clearTimeout(transitionMidpointRef.current);
+      }
+      if (transitionEndRef.current !== null) {
+        window.clearTimeout(transitionEndRef.current);
+      }
+    },
+    [],
+  );
 
   useEffect(() => {
     playSketchSceneSound(step);
@@ -1017,6 +1287,7 @@ function SketchPreludeScreen({ onComplete }: { onComplete: () => void }) {
 
   return (
     <>
+      <SketchMobileArt art={mobilePreludeArt} className="is-prelude-art" />
       <div className="designer-layer-stack" aria-hidden="true">
         <img
           alt=""
@@ -1062,6 +1333,7 @@ function SketchPreludeScreen({ onComplete }: { onComplete: () => void }) {
       {currentStep.kind === "story" && currentStep.tone !== "blink" && (
         <button
           className={`sketch-prelude-copy ${toneClass}`}
+          key={`prelude-story-${step}`}
           onClick={advancePrelude}
           type="button"
         >
@@ -1078,6 +1350,13 @@ function SketchPreludeScreen({ onComplete }: { onComplete: () => void }) {
           notice={currentStep.notice}
         />
       )}
+
+      <div
+        aria-hidden="true"
+        className={`sketch-prelude-transition ${
+          isTransitioning ? "is-active" : ""
+        }`}
+      />
 
     </>
   );
@@ -1098,6 +1377,7 @@ function SketchQuestionScreen({
   const [beatIndex, setBeatIndex] = useState(0);
   const [optionsVisible, setOptionsVisible] = useState(false);
   const [groupChatOpen, setGroupChatOpen] = useState(false);
+  const [noticeSequenceStarted, setNoticeSequenceStarted] = useState(false);
   const burnoutNotificationSoundPlayedRef = useRef(false);
   const [acknowledgedNoticeKeys, setAcknowledgedNoticeKeys] = useState<
     string[]
@@ -1122,29 +1402,49 @@ function SketchQuestionScreen({
     ],
     [beatIndex, question.id, scene.foreground],
   );
-  const optionsActive = isFinalBeat && optionsVisible;
   const beatNotices = useMemo(
     () => getSketchNotices(question.id, beatIndex),
     [beatIndex, question.id],
   );
+  const isUrgentNoticeScene =
+    question.id === "burnout-monster" ||
+    question.id === "finals-mode" ||
+    question.id === "weekend-portal";
+  const pendingNotice =
+    beatNotices.find(
+      (notice) => !acknowledgedNoticeKeys.includes(notice.key),
+    ) ?? null;
+  const noticeRequiresClick = Boolean(pendingNotice && !isUrgentNoticeScene);
+  const noticeBlocksOptions =
+    question.id === "weekend-portal" && Boolean(pendingNotice);
   const activeNotice =
-    !sceneIntroVisible && !isTyping
-      ? beatNotices.find(
-          (notice) => !acknowledgedNoticeKeys.includes(notice.key),
-        ) ?? null
+    !sceneIntroVisible &&
+    !isTyping &&
+    (isUrgentNoticeScene || noticeSequenceStarted)
+      ? pendingNotice
       : null;
+  const isChoicePromptReady =
+    isFinalBeat && !noticeRequiresClick && !noticeBlocksOptions;
+  const optionsActive =
+    isChoicePromptReady && optionsVisible;
   const showBurnoutNotifications =
     question.id === "burnout-monster" &&
     !sceneIntroVisible &&
     beatIndex >= 1;
   const visualBeats = getSketchVisualBeats(question.id, beatIndex, !isTyping);
   const visualSlotCount = getSketchVisualSlotCount(question.id, beatIndex);
+  const mobileQuestionArt = useMemo(
+    () => getSketchMobileQuestionArt(question.id, beatIndex),
+    [beatIndex, question.id],
+  );
+  const showIsolatedNotice = Boolean(activeNotice && !isUrgentNoticeScene);
 
   useEffect(() => {
     setSceneIntroVisible(false);
     setBeatIndex(0);
     setOptionsVisible(false);
     setGroupChatOpen(false);
+    setNoticeSequenceStarted(false);
     setAcknowledgedNoticeKeys([]);
     playSketchSceneSound(currentIndex);
   }, [currentIndex, question.id]);
@@ -1163,6 +1463,7 @@ function SketchQuestionScreen({
 
   useEffect(() => {
     setAcknowledgedNoticeKeys([]);
+    setNoticeSequenceStarted(false);
   }, [beatIndex, question.id]);
 
   useEffect(() => {
@@ -1230,7 +1531,12 @@ function SketchQuestionScreen({
   useEffect(() => {
     setOptionsVisible(false);
 
-    if (sceneIntroVisible || isTyping || !isFinalBeat) {
+    if (
+      sceneIntroVisible ||
+      isTyping ||
+      !isFinalBeat ||
+      noticeBlocksOptions
+    ) {
       return;
     }
 
@@ -1243,6 +1549,7 @@ function SketchQuestionScreen({
     beatIndex,
     isFinalBeat,
     isTyping,
+    noticeBlocksOptions,
     question.id,
     sceneIntroVisible,
   ]);
@@ -1258,6 +1565,11 @@ function SketchQuestionScreen({
     }
 
     if (activeNotice) {
+      return;
+    }
+
+    if (pendingNotice && !isUrgentNoticeScene && !noticeSequenceStarted) {
+      setNoticeSequenceStarted(true);
       return;
     }
 
@@ -1283,6 +1595,12 @@ function SketchQuestionScreen({
   return (
     <>
       <SketchSceneLayers foreground={foregroundAssets} layers={scene.layers} />
+      {mobileQuestionArt && (
+        <SketchMobileArt
+          art={mobileQuestionArt}
+          className={`is-question-art mobile-question-${question.id} mobile-beat-${beatIndex}`}
+        />
+      )}
       <div className="sketch-focus-wash" aria-hidden="true" />
 
       {showBurnoutNotifications && <SketchNotificationStack />}
@@ -1296,7 +1614,7 @@ function SketchQuestionScreen({
         >
           <img
             alt=""
-            src={`${designerAsset}props/biz-case-phone.png`}
+            src={`${mobileDraftAsset}q4-element.webp`}
           />
           <span>Biz Case grp 3</span>
         </button>
@@ -1319,7 +1637,7 @@ function SketchQuestionScreen({
           >
             <img
               alt="Biz Case group chat sketch"
-              src={`${designerAsset}props/biz-case-phone.png`}
+              src={`${mobileDraftAsset}q4-element.webp`}
             />
             <span>Tap to return</span>
           </button>
@@ -1334,74 +1652,81 @@ function SketchQuestionScreen({
         />
       )}
 
-      <div
-        className="sketch-quiz-layer"
-      >
-        <div className="sketch-topbar">
-          <span>{`${currentIndex + 1}/${quizQuestions.length}`}</span>
-        </div>
-
-        <section
-          className={`sketch-question-card sketch-pane-${scene.pane} ${
-            isFinalBeat ? "is-choice-phase" : "is-story-phase"
-          } ${visualSlotCount > 0 ? "has-visuals" : ""}`}
-        >
-          <button
-            className="sketch-dialogue"
-            onClick={handleDialogueClick}
-            type="button"
-            aria-label={
-              isTyping
-                ? "Story text is typing"
-                : isFinalBeat
-                  ? "Choose an option"
-                  : "Continue dialogue"
-            }
-          >
-            <div className="sketch-dialogue-content">
-              <div className="sketch-dialogue-copy">
-                <pre className="sketch-dialogue-text">
-                  {visibleText}
-                  {isTyping && <i aria-hidden="true">|</i>}
-                </pre>
-                <pre className="sketch-dialogue-measure" aria-hidden="true">
-                  {currentBeatText}
-                </pre>
-              </div>
-              {visualSlotCount > 0 && (
-                <SketchDialogueVisuals
-                  beats={visualBeats}
-                  slotCount={visualSlotCount}
-                />
-              )}
-            </div>
-            {!isTyping && (
-              <small className={isFinalBeat ? "is-choice-cue" : "is-continue-cue"}>
-                {isFinalBeat ? "Choose your move" : "Tap to continue"}
-              </small>
-            )}
-          </button>
-
-          <div
-            className={`sketch-options ${optionsActive ? "is-visible" : ""}`}
-            aria-hidden={!optionsActive}
-          >
-            {question.options.map((option, index) => (
-              <button
-                className="sketch-option"
-                disabled={!optionsActive}
-                key={option.id}
-                onClick={() => onAnswer(option)}
-                style={{ "--option-index": index } as CSSProperties}
-                type="button"
-              >
-                <span>{option.id}</span>
-                <strong>{cleanText(option.label)}</strong>
-              </button>
-            ))}
+      {!showIsolatedNotice && (
+        <div className="sketch-quiz-layer">
+          <div className="sketch-topbar">
+            <span>{`${currentIndex + 1}/${quizQuestions.length}`}</span>
           </div>
-        </section>
-      </div>
+
+          <section
+            className={`sketch-question-card sketch-pane-${scene.pane} ${
+              isFinalBeat ? "is-choice-phase" : "is-story-phase"
+            } ${!isFinalBeat ? "is-narration-phase" : ""} ${
+              visualSlotCount > 0 ? "has-visuals" : ""
+            }`}
+          >
+            <button
+              className="sketch-dialogue"
+              onClick={handleDialogueClick}
+              type="button"
+              aria-label={
+                isTyping
+                  ? "Story text is typing"
+                  : isChoicePromptReady
+                    ? "Choose an option"
+                    : "Continue dialogue"
+              }
+            >
+              <div className="sketch-dialogue-content">
+                <div className="sketch-dialogue-copy">
+                  <pre className="sketch-dialogue-text">
+                    {visibleText}
+                    {isTyping && <i aria-hidden="true">|</i>}
+                  </pre>
+                  <pre className="sketch-dialogue-measure" aria-hidden="true">
+                    {currentBeatText}
+                  </pre>
+                </div>
+                {visualSlotCount > 0 && (
+                  <SketchDialogueVisuals
+                    beats={visualBeats}
+                    slotCount={visualSlotCount}
+                  />
+                )}
+              </div>
+              <small
+                aria-hidden={isTyping}
+                className={`${isChoicePromptReady ? "is-choice-cue" : "is-continue-cue"} ${
+                  isTyping ? "is-reserved-cue" : ""
+                }`}
+              >
+                {isChoicePromptReady ? "Choose your move" : "Tap to continue"}
+              </small>
+            </button>
+
+            {!noticeRequiresClick && (
+              <div
+                className={`sketch-options ${optionsActive ? "is-visible" : ""}`}
+                aria-hidden={!optionsActive}
+              >
+                {question.options.map((option, index) => (
+                  <button
+                    className="sketch-option"
+                    disabled={!optionsActive}
+                    key={option.id}
+                    onClick={() => onAnswer(option)}
+                    style={{ "--option-index": index } as CSSProperties}
+                    type="button"
+                  >
+                    <span>{option.id}</span>
+                    <strong>{cleanText(option.label)}</strong>
+                  </button>
+                ))}
+              </div>
+            )}
+          </section>
+        </div>
+      )}
     </>
   );
 }
@@ -1443,20 +1768,28 @@ function SketchSystemNotice({
 }) {
   return (
     <div
-      className={`sketch-system-notice is-${notice.kind}`}
+      className={`sketch-system-notice is-${notice.kind} notice-${notice.key}`}
       role="status"
       aria-live={notice.kind === "warning" ? "assertive" : "polite"}
       aria-label={notice.title}
       style={{ "--notice-duration": `${durationMs}ms` } as CSSProperties}
     >
-      <div
-        className={`sketch-system-notice-card ${
-          notice.body ? "" : "has-title-only"
-        }`}
-      >
-        <span>{notice.title}</span>
-        {notice.body && <strong>{notice.body}</strong>}
-      </div>
+      {notice.art ? (
+        <img
+          alt=""
+          className="sketch-system-notice-art"
+          src={`${mobileDraftAsset}${notice.art}`}
+        />
+      ) : (
+        <div
+          className={`sketch-system-notice-card ${
+            notice.body ? "" : "has-title-only"
+          }`}
+        >
+          <span>{notice.title}</span>
+          {notice.body && <strong>{notice.body}</strong>}
+        </div>
+      )}
     </div>
   );
 }
@@ -1484,16 +1817,26 @@ function SketchNotificationStack() {
 }
 
 function SketchCalculationScreen() {
+  const notice: SketchNotice = {
+    art: "popup-14.webp",
+    body: "Calculating build...",
+    key: "events-complete",
+    kind: "event",
+    title: "Events completed",
+  };
+
   return (
-    <section className="sketch-result-card sketch-calculation" role="status">
-      <span>Adventure record complete</span>
-      <h1>Calculating build...</h1>
-      <div aria-hidden="true" className="sketch-loader">
-        <i />
-        <i />
-        <i />
-      </div>
-    </section>
+    <>
+      <SketchMobileArt
+        art={{ background: "premise-bg.webp" }}
+        className="is-calculation-art"
+      />
+      <SketchSystemNotice
+        durationMs={calculationDelayMs}
+        key={notice.key}
+        notice={notice}
+      />
+    </>
   );
 }
 
@@ -1506,6 +1849,10 @@ function SketchResultScreen({
   onRestart: () => void;
   result: (typeof resultProfiles)[OutcomeId];
 }) {
+  const [shareStatus, setShareStatus] = useState<
+    "idle" | "sharing" | "shared" | "downloaded" | "error"
+  >("idle");
+  const resultCardSrc = resultDesignerCards[result.id];
   const completedEvents = useMemo(
     () =>
       completedAnswers
@@ -1533,51 +1880,38 @@ function SketchResultScreen({
     [completedAnswers],
   );
 
+  const handleShare = async () => {
+    setShareStatus("sharing");
+
+    try {
+      const status = await shareResultStory(result, resultCardSrc);
+      setShareStatus(status);
+    } catch (error) {
+      if (error instanceof DOMException && error.name === "AbortError") {
+        setShareStatus("idle");
+        return;
+      }
+
+      setShareStatus("error");
+    }
+  };
+
   return (
-    <section className="sketch-result-card">
-      <div className="sketch-result-hero">
-        <div className="sketch-result-heading">
-          <span>Freshman Type Revealed</span>
-          <h1>{cleanText(result.name)}</h1>
-          <p className="sketch-motto">"{cleanText(result.motto)}"</p>
-        </div>
+    <>
+      <SketchMobileArt
+        art={{ background: "quiz-results.webp" }}
+        className="is-result-art"
+      />
+      <section className="sketch-result-card">
+        <header className="sketch-result-heading">
+          <h1>What NBS Freshman Are You?</h1>
+          <p>Your choice. Your vibe. Your NBS story.</p>
+        </header>
         <img
-          alt={`${cleanText(result.name)} character illustration`}
-          className="sketch-result-character"
-          src={resultCharacterAssets[result.id]}
+          alt={`${cleanText(result.name)} personality result card`}
+          className="sketch-result-designer-card"
+          src={resultCardSrc}
         />
-      </div>
-
-      <div className="sketch-result-grid">
-        <section>
-          <h2>Traits</h2>
-          <div className="sketch-chip-row">
-            {result.traits.map((trait) => (
-              <i key={trait}>{cleanText(trait)}</i>
-            ))}
-          </div>
-        </section>
-
-        <section>
-          <h2>Personality Tags</h2>
-          <div className="sketch-chip-row">
-            {result.tags.map((tag) => (
-              <i key={tag}>{cleanText(tag)}</i>
-            ))}
-          </div>
-        </section>
-      </div>
-
-      <p className="sketch-profile">{cleanText(result.profile)}</p>
-
-      <section className="sketch-tips">
-        <h2>Wellbeing Tips</h2>
-        <ul>
-          {result.wellbeingTips.map((tip) => (
-            <li key={tip}>{cleanText(tip)}</li>
-          ))}
-        </ul>
-      </section>
 
       <details className="sketch-adventure-log">
         <summary>Review your journey</summary>
@@ -1594,10 +1928,26 @@ function SketchResultScreen({
         </ol>
       </details>
 
-      <button className="sketch-replay" onClick={onRestart} type="button">
-        Replay Quiz
-      </button>
-    </section>
+        <div className="sketch-result-actions">
+          <button
+            className="sketch-share"
+            disabled={shareStatus === "sharing"}
+            onClick={handleShare}
+            type="button"
+          >
+            {shareStatus === "sharing" ? "Preparing Story..." : "Share to Instagram Story"}
+          </button>
+          <button className="sketch-replay" onClick={onRestart} type="button">
+          Replay Quiz
+          </button>
+        </div>
+        <p className="sketch-share-status" aria-live="polite">
+          {shareStatus === "downloaded" && "Story image downloaded."}
+          {shareStatus === "shared" && "Result shared."}
+          {shareStatus === "error" && "Could not prepare the image. Please try again."}
+        </p>
+      </section>
+    </>
   );
 }
 
