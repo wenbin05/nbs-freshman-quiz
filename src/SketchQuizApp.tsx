@@ -941,13 +941,34 @@ function SketchMobileArt({
         {art.backgroundOverlays && art.backgroundOverlays.length > 0 && (
           <div className="sketch-mobile-art-illustration">
             {art.backgroundOverlays.map((overlay, index) => (
-              <img
-                alt=""
-                className={`sketch-mobile-art-overlay ${getAssetClass(overlay)}`}
-                key={overlay}
-                src={`${mobileDraftAsset}${overlay}`}
-                style={{ "--mobile-art-index": index } as CSSProperties}
-              />
+              overlay === "q2-orientation-extras.webp" ? (
+                <div
+                  className="orientation-banner-reveal"
+                  key={overlay}
+                >
+                  {[0, 1, 2].map((sliceIndex) => (
+                    <span
+                      className={`orientation-banner-slice orientation-banner-slice-${
+                        sliceIndex + 1
+                      }`}
+                      key={sliceIndex}
+                    >
+                      <img
+                        alt=""
+                        src={`${mobileDraftAsset}${overlay}`}
+                      />
+                    </span>
+                  ))}
+                </div>
+              ) : (
+                <img
+                  alt=""
+                  className={`sketch-mobile-art-overlay ${getAssetClass(overlay)}`}
+                  key={overlay}
+                  src={`${mobileDraftAsset}${overlay}`}
+                  style={{ "--mobile-art-index": index } as CSSProperties}
+                />
+              )
             ))}
           </div>
         )}

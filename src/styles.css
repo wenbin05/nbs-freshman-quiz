@@ -5549,18 +5549,63 @@ body.is-threat-shaking .game-shell {
   animation-delay: calc(var(--mobile-art-index, 0) * 100ms);
 }
 
-.mobile-asset-q2-orientation-extras {
-  transition: clip-path 520ms ease;
+.orientation-banner-reveal {
+  inset: 0;
+  position: absolute;
+}
+
+.orientation-banner-slice {
+  bottom: 0;
+  opacity: 0;
+  overflow: hidden;
+  position: absolute;
+  top: 0;
+  transition: opacity 420ms ease;
+  width: 33.3334%;
+}
+
+.orientation-banner-slice img {
+  height: 100%;
+  max-width: none;
+  object-fit: contain;
+  position: absolute;
+  top: 0;
+  width: 300%;
+}
+
+.orientation-banner-slice-1 {
+  left: 0;
+}
+
+.orientation-banner-slice-1 img {
+  left: 0;
+}
+
+.orientation-banner-slice-2 {
+  left: 33.3333%;
+}
+
+.orientation-banner-slice-2 img {
+  left: -100%;
+}
+
+.orientation-banner-slice-3 {
+  left: 66.6666%;
+}
+
+.orientation-banner-slice-3 img {
+  left: -200%;
 }
 
 .mobile-question-orientation-arena.mobile-beat-1
-  .mobile-asset-q2-orientation-extras {
-  clip-path: inset(0 66% 0 0);
-}
-
+  .orientation-banner-slice-1,
 .mobile-question-orientation-arena.mobile-beat-2
-  .mobile-asset-q2-orientation-extras {
-  clip-path: inset(0 33% 0 0);
+  .orientation-banner-slice-1,
+.mobile-question-orientation-arena.mobile-beat-2
+  .orientation-banner-slice-2,
+.mobile-question-orientation-arena.mobile-beat-3
+  .orientation-banner-slice {
+  opacity: 1;
 }
 
 .mobile-question-weekend-portal .sketch-mobile-art-background {
