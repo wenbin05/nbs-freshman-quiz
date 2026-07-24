@@ -6112,13 +6112,6 @@ body.is-threat-shaking .game-shell {
   width: 118%;
 }
 
-.notice-prelude-orientation-objective .sketch-system-notice-art {
-  height: 128%;
-  left: -14%;
-  top: -28%;
-  width: 128%;
-}
-
 .sketch-system-notice-card {
   margin-top: 14%;
   max-width: 86%;
@@ -6298,5 +6291,395 @@ body.is-threat-shaking .game-shell {
   100% {
     opacity: 0;
     transform: translateX(100%);
+  }
+}
+
+/* Final mobile pacing and accessibility pass */
+.sketch-mobile-art {
+  animation-duration: 280ms;
+}
+
+.sketch-mobile-art-background.is-previous {
+  animation-duration: 340ms;
+}
+
+.sketch-mobile-art-background.is-current {
+  animation-duration: 340ms;
+}
+
+.sketch-mobile-art-overlay,
+.sketch-mobile-foreground .sketch-mobile-art-overlay {
+  animation-delay: 0ms;
+  animation-duration: 320ms;
+}
+
+.mobile-question-orientation-arena.mobile-beat-0
+  .mobile-asset-q2-orientation-extras {
+  opacity: 1;
+}
+
+.sketch-dialogue pre {
+  font-size: clamp(0.7rem, 3.05cqw, 0.92rem);
+  line-height: 1.42;
+}
+
+.sketch-question-card.is-narration-phase .sketch-dialogue pre {
+  font-size: clamp(0.7rem, 3cqw, 0.9rem);
+  line-height: 1.42;
+}
+
+.sketch-dialogue small,
+.sketch-question-card.is-narration-phase .sketch-dialogue small {
+  font-size: clamp(0.58rem, 2.4cqw, 0.72rem);
+}
+
+.sketch-option strong {
+  font-size: clamp(0.54rem, 2.3cqw, 0.71rem);
+  line-height: 1.28;
+}
+
+.sketch-option span {
+  font-size: clamp(0.58rem, 2.45cqw, 0.74rem);
+}
+
+.sketch-system-notice {
+  animation-duration: var(--notice-duration, 1800ms);
+}
+
+.sketch-system-notice-art {
+  animation-duration: 240ms;
+  height: 108%;
+  left: -4%;
+  object-fit: contain;
+  top: -4%;
+  width: 108%;
+}
+
+.sketch-system-notice-card {
+  margin-top: 16%;
+  max-width: 88%;
+  padding: 18px 20px;
+  width: min(88%, 420px);
+}
+
+.sketch-system-notice-card span,
+.sketch-system-notice-card.has-title-only span {
+  font-size: clamp(0.78rem, 3.25cqw, 1rem);
+  line-height: 1.32;
+  text-align: center;
+  text-wrap: balance;
+  width: 100%;
+}
+
+.sketch-system-notice-card strong {
+  font-size: clamp(0.72rem, 3cqw, 0.92rem);
+  line-height: 1.38;
+  text-align: center;
+}
+
+button.sketch-system-notice {
+  animation: none;
+  appearance: none;
+  border: 0;
+  cursor: pointer;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+button.sketch-system-notice .sketch-system-notice-card {
+  cursor: pointer;
+}
+
+button.sketch-system-notice .sketch-system-notice-card small {
+  animation: sketchCueBlink 900ms steps(2, end) infinite;
+  color: #285a91;
+  font-family: "Silkscreen", "Courier New", monospace;
+  font-size: clamp(0.54rem, 2.3cqw, 0.7rem);
+}
+
+.sketch-notification-stack {
+  display: block;
+}
+
+.sketch-notification-stack i {
+  font-family: "Silkscreen", "Courier New", monospace;
+  font-size: clamp(0.5rem, 2.05cqw, 0.66rem);
+  padding: 7px 5px;
+  white-space: nowrap;
+  width: 23%;
+}
+
+.sketch-notification-stack i:nth-child(1) {
+  left: 1%;
+  top: 7%;
+}
+
+.sketch-notification-stack i:nth-child(2) {
+  left: 25.5%;
+  top: 7%;
+}
+
+.sketch-notification-stack i:nth-child(3) {
+  left: 50%;
+  right: auto;
+  top: 7%;
+}
+
+.sketch-notification-stack i:nth-child(4) {
+  left: 74.5%;
+  right: auto;
+  top: 7%;
+}
+
+.sketch-prelude-transition.is-active {
+  animation-duration: 440ms;
+}
+
+.mobile-question-finding-your-class.mobile-beat-1
+  .mobile-asset-q3-element,
+.mobile-question-group-project.mobile-beat-1
+  .mobile-asset-q4-character,
+.mobile-question-cca-fair.mobile-beat-1
+  .mobile-asset-q2-q5-character,
+.mobile-question-weekend-portal.mobile-beat-0
+  .mobile-asset-q8-character {
+  transform: translate(0, 42%) scale(0.46);
+}
+
+.sketch-result-credit {
+  color: #285a91;
+  font-family: "Silkscreen", "Courier New", monospace;
+  font-size: clamp(0.55rem, 2.35cqw, 0.72rem);
+  line-height: 1.4;
+  margin: 0;
+  text-align: center;
+}
+
+.sketch-student-care {
+  background: #eef7ff;
+  border: 2px solid #8fb9e8;
+  border-radius: 12px;
+  color: #173d70;
+  display: grid;
+  gap: 8px;
+  padding: 14px;
+}
+
+.sketch-student-care h2,
+.sketch-student-care p {
+  margin: 0;
+}
+
+.sketch-student-care h2 {
+  font-family: "Silkscreen", "Courier New", monospace;
+  font-size: clamp(0.68rem, 2.8cqw, 0.88rem);
+  font-weight: 400;
+  text-transform: uppercase;
+}
+
+.sketch-student-care p,
+.sketch-student-care a {
+  font-family: system-ui, sans-serif;
+  font-size: clamp(0.76rem, 3cqw, 0.92rem);
+  line-height: 1.45;
+}
+
+.sketch-student-care a {
+  color: #1e5e9e;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.sketch-result-quiz-link {
+  align-items: center;
+  background: #ffffff;
+  border: 2px solid #8fb9e8;
+  border-radius: 12px;
+  color: #173d70;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: 76px minmax(0, 1fr);
+  padding: 10px;
+  text-decoration: none;
+}
+
+.sketch-result-quiz-link img {
+  display: block;
+  height: 76px;
+  width: 76px;
+}
+
+.sketch-result-quiz-link span {
+  display: grid;
+  gap: 5px;
+}
+
+.sketch-result-quiz-link strong,
+.sketch-result-quiz-link small {
+  font-family: "Silkscreen", "Courier New", monospace;
+  font-weight: 400;
+}
+
+.sketch-result-quiz-link strong {
+  font-size: clamp(0.68rem, 2.8cqw, 0.88rem);
+  text-transform: uppercase;
+}
+
+.sketch-result-quiz-link small {
+  font-size: clamp(0.5rem, 2.15cqw, 0.66rem);
+  line-height: 1.4;
+}
+
+@container (max-width: 350px) {
+  .sketch-dialogue pre,
+  .sketch-question-card.is-narration-phase .sketch-dialogue pre {
+    font-size: clamp(0.6rem, 2.72cqw, 0.76rem);
+  }
+
+  .sketch-option strong {
+    font-size: clamp(0.48rem, 2.05cqw, 0.62rem);
+  }
+}
+
+/* Supervisor review pass: centered HUD notices and collision-safe story beats */
+.sketch-system-notice.has-custom-card {
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 11%;
+}
+
+.sketch-system-notice.has-custom-card .sketch-system-notice-card {
+  background: rgba(159, 180, 235, 0.97);
+  border: 6px solid #2f3568;
+  border-radius: 6px;
+  box-shadow:
+    inset 0 0 0 3px rgba(222, 231, 255, 0.7),
+    0 8px 0 rgba(31, 44, 91, 0.22),
+    0 16px 28px rgba(31, 44, 91, 0.2);
+  gap: 10px;
+  margin: 0;
+  min-height: 132px;
+  padding: 21px 20px;
+  place-content: center;
+  width: min(80%, 420px);
+}
+
+.sketch-system-notice.has-custom-card .sketch-system-notice-card span,
+.sketch-system-notice.has-custom-card
+  .sketch-system-notice-card.has-title-only
+  span {
+  color: #fff38a;
+  display: block;
+  font-size: clamp(0.72rem, 3.1cqw, 0.94rem);
+  line-height: 1.4;
+  margin: 0 auto;
+  text-align: center;
+  text-wrap: balance;
+  width: 100%;
+}
+
+.sketch-system-notice.has-custom-card .sketch-system-notice-card strong {
+  color: #ffffff;
+  display: block;
+  font-size: clamp(0.68rem, 2.9cqw, 0.88rem);
+  line-height: 1.45;
+  margin: 0 auto;
+  text-align: center;
+  text-wrap: balance;
+  width: 100%;
+}
+
+.sketch-system-notice.has-custom-card .sketch-system-notice-card small {
+  color: #eef3ff;
+  text-align: center;
+}
+
+.sketch-mobile-foreground.mobile-question-orientation-arena.mobile-beat-1::before {
+  animation: orientationSceneBridge 560ms ease-out both;
+  background: rgba(237, 246, 255, 0.98);
+  content: "";
+  inset: 0;
+  pointer-events: none;
+  position: absolute;
+  z-index: 20;
+}
+
+.mobile-question-orientation-arena.mobile-beat-1
+  .mobile-asset-q2-q5-character {
+  transform: translate(0, 40%) scale(0.43);
+}
+
+.mobile-question-finding-your-class.mobile-beat-0
+  .mobile-asset-q3-element {
+  transform: translate(18%, 18%) scale(0.46);
+}
+
+.mobile-question-finding-your-class.mobile-beat-1
+  .mobile-asset-q3-element {
+  transform: translate(0, 40%) scale(0.43);
+}
+
+.sketch-q-4 .sketch-question-card.is-choice-phase,
+.sketch-q-8 .sketch-question-card.is-choice-phase {
+  grid-template-rows: minmax(0, 48%) minmax(0, 52%);
+  height: 60%;
+  top: 24%;
+}
+
+.sketch-q-4 .sketch-question-card.is-choice-phase .sketch-dialogue,
+.sketch-q-8 .sketch-question-card.is-choice-phase .sketch-dialogue {
+  padding: 10% 8% 6%;
+}
+
+.mobile-question-cca-fair.mobile-beat-0
+  .mobile-asset-q2-q5-character,
+.mobile-question-cca-fair.mobile-beat-1
+  .mobile-asset-q2-q5-character {
+  transform: translate(0, 25%) scale(0.46);
+}
+
+.mobile-question-cca-fair.mobile-beat-2
+  .mobile-asset-q2-q5-character {
+  transform: translate(0, 40%) scale(0.43);
+}
+
+.mobile-question-cca-fair .mobile-asset-q5-characters {
+  transform: translateY(-3%) scale(0.72);
+}
+
+.sketch-chat-trigger {
+  left: 3%;
+  top: 6%;
+  width: 13%;
+}
+
+.notice-burnout-monster-alert.has-custom-card
+  .sketch-system-notice-card {
+  background: rgba(139, 22, 34, 0.97);
+  border-color: #ff6b65;
+  box-shadow:
+    inset 0 0 0 3px rgba(255, 183, 164, 0.32),
+    0 8px 0 rgba(73, 8, 20, 0.34),
+    0 0 30px rgba(255, 62, 72, 0.5);
+}
+
+.notice-burnout-monster-alert.has-custom-card
+  .sketch-system-notice-card span {
+  color: #ffe769;
+}
+
+.notice-burnout-monster-alert.has-custom-card
+  .sketch-system-notice-card strong,
+.notice-burnout-monster-alert.has-custom-card
+  .sketch-system-notice-card small {
+  color: #ffffff;
+}
+
+@keyframes orientationSceneBridge {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
   }
 }

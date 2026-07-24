@@ -1,6 +1,11 @@
 import type { OptionId, OutcomeId } from "../types";
+import { getAttributionSource } from "./quizUrl";
 
 type QuizAnalyticsEvent =
+  | {
+      attemptId: string;
+      eventType: "quiz_landed";
+    }
   | {
       attemptId: string;
       eventType: "quiz_started";
@@ -14,6 +19,15 @@ type QuizAnalyticsEvent =
   | {
       attemptId: string;
       eventType: "quiz_completed";
+      resultId: OutcomeId;
+    }
+  | {
+      attemptId: string;
+      eventType:
+        | "quiz_link_clicked"
+        | "result_review_opened"
+        | "result_shared"
+        | "student_care_clicked";
       resultId: OutcomeId;
     };
 
@@ -32,6 +46,7 @@ export function trackQuizEvent(event: QuizAnalyticsEvent) {
       ...event,
       eventId: globalThis.crypto?.randomUUID?.() ??
         `event-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+      source: getAttributionSource(),
     }),
     headers: { "Content-Type": "application/json" },
     keepalive: true,

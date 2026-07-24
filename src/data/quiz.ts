@@ -448,6 +448,8 @@ export const resultProfiles: Record<OutcomeId, ResultProfile> = {
       "Don't compare your journey constantly.",
       "Schedule breaks like you schedule work.",
     ],
+    studentCareMessage:
+      "If the pressure to keep pushing or doing well ever feels like too much, you don't have to carry it alone. Reach out to the NBS Student Care Team at nbs-studentcare@ntu.edu.sg.",
   },
   socialButterfly: {
     id: "socialButterfly",
@@ -462,6 +464,8 @@ export const resultProfiles: Record<OutcomeId, ResultProfile> = {
       "Protect your energy. Not every event is a must-go.",
       "Make time for yourself, not just others.",
     ],
+    studentCareMessage:
+      "If juggling social life and academics ever gets overwhelming, you don't have to handle it alone. The NBS Student Care Team is here for you at nbs-studentcare@ntu.edu.sg.",
   },
   lostButVibing: {
     id: "lostButVibing",
@@ -476,6 +480,8 @@ export const resultProfiles: Record<OutcomeId, ResultProfile> = {
       "Ask for help earlier, not at 2am.",
       "You don't have to have everything figured out.",
     ],
+    studentCareMessage:
+      "If you ever feel a bit unsure where you're headed, the NBS Student Care Team is here to help you figure things out. Reach out anytime at nbs-studentcare@ntu.edu.sg.",
   },
   softSupporter: {
     id: "softSupporter",
@@ -490,6 +496,8 @@ export const resultProfiles: Record<OutcomeId, ResultProfile> = {
       "You're allowed to set boundaries.",
       "You don't have to carry everyone's problems.",
     ],
+    studentCareMessage:
+      "If you ever feel drained from always being there for others, don't forget you deserve support too. The NBS Student Care Team is here for you at nbs-studentcare@ntu.edu.sg.",
   },
   weBallAgent: {
     id: "weBallAgent",
@@ -504,6 +512,8 @@ export const resultProfiles: Record<OutcomeId, ResultProfile> = {
       "Start slightly earlier, just a bit.",
       "Chaos is fun. Burnout isn't.",
     ],
+    studentCareMessage:
+      "If things start piling up or feel a bit out of control, it's okay to pause and get support. Reach out to the NBS Student Care Team at nbs-studentcare@ntu.edu.sg.",
   },
   lowkeyStrategist: {
     id: "lowkeyStrategist",
@@ -518,5 +528,7 @@ export const resultProfiles: Record<OutcomeId, ResultProfile> = {
       "It's okay to let others see your effort.",
       "Balance efficiency with connection.",
     ],
+    studentCareMessage:
+      "If you ever feel stuck or overwhelmed but find it hard to speak up, the NBS Student Care Team is here to listen. Reach out at nbs-studentcare@ntu.edu.sg.",
   },
 };

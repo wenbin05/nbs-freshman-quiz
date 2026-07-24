@@ -1,7 +1,12 @@
 const eventTypes = new Set([
+  "quiz_landed",
   "quiz_started",
   "answer_selected",
   "quiz_completed",
+  "quiz_link_clicked",
+  "result_review_opened",
+  "result_shared",
+  "student_care_clicked",
 ]);
 const optionIds = new Set(["A", "B", "C", "D"]);
 const resultIds = new Set([
@@ -34,6 +39,17 @@ function isValidPayload(payload) {
   }
 
   if (payload.eventType === "quiz_completed") {
+    return resultIds.has(String(payload.resultId));
+  }
+
+  if (
+    [
+      "quiz_link_clicked",
+      "result_review_opened",
+      "result_shared",
+      "student_care_clicked",
+    ].includes(payload.eventType)
+  ) {
     return resultIds.has(String(payload.resultId));
   }
 
@@ -78,6 +94,7 @@ export async function POST(request) {
       option_id: payload.optionId ?? null,
       question_id: payload.questionId ?? null,
       result_id: payload.resultId ?? null,
+      source: isShortString(payload.source, 60) ? payload.source : "direct",
     }),
     headers,
     method: "POST",

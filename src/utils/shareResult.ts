@@ -1,4 +1,6 @@
+import QRCode from "qrcode";
 import type { ResultProfile } from "../types";
+import { getPublicQuizUrl } from "./quizUrl";
 
 const storyWidth = 1080;
 const storyHeight = 1920;
@@ -184,7 +186,19 @@ export async function createResultStoryImage(
     258,
   );
 
-  const resultCard = await loadImage(resultCardSrc);
+  const quizUrl = getPublicQuizUrl("ig-story");
+  const qrDataUrl = await QRCode.toDataURL(quizUrl, {
+    color: {
+      dark: "#173d70",
+      light: "#ffffff",
+    },
+    margin: 1,
+    width: 220,
+  });
+  const [resultCard, qrCode] = await Promise.all([
+    loadImage(resultCardSrc),
+    loadImage(qrDataUrl),
+  ]);
   const maxCardWidth = 900;
   const maxCardHeight = 1020;
   const scale = Math.min(
@@ -231,23 +245,31 @@ export async function createResultStoryImage(
   context.font = '23px "Silkscreen", monospace';
   context.fillText(visibleTags, storyWidth / 2, Math.min(tagsY, resultPanelY + 252));
 
-  context.fillStyle = "#24568f";
-  context.font = '24px "Silkscreen", monospace';
-  context.fillText("WHAT TYPE DID YOU GET?", storyWidth / 2, 1772);
-
-  context.strokeStyle = palette.accent;
+  roundedRect(context, 90, 1696, 900, 176, 34);
+  context.fillStyle = "#ffffff";
+  context.fill();
   context.lineWidth = 4;
-  context.beginPath();
-  context.moveTo(220, 1805);
-  context.lineTo(860, 1805);
+  context.strokeStyle = palette.accent;
   context.stroke();
 
   context.fillStyle = "#24568f";
-  context.font = '25px "Silkscreen", monospace';
+  context.font = '28px "Silkscreen", monospace';
+  context.textAlign = "left";
+  context.fillText("DISCOVER YOUR NBS TYPE", 132, 1758);
+  context.font = '22px "Silkscreen", monospace';
+  context.fillText("SCAN TO TAKE THE QUIZ", 132, 1806);
+  context.font = '18px "Silkscreen", monospace';
+  context.fillText("freshman-quiz.vercel.app", 132, 1848);
+
+  context.drawImage(qrCode, 805, 1711, 144, 144);
+
+  context.fillStyle = "#24568f";
+  context.font = '21px "Silkscreen", monospace';
+  context.textAlign = "center";
   context.fillText(
     `${result.tags[0] ?? "#NBSFreshman"}  #NBSWelcomeDay`,
     storyWidth / 2,
-    1860,
+    1904,
   );
 
   return canvasToBlob(canvas);
@@ -267,7 +289,7 @@ export async function shareResultStory(
   if (navigator.share && navigator.canShare?.({ files: [file] })) {
     await navigator.share({
       files: [file],
-      text: `I got ${result.name} in What NBS Freshman Are You?`,
+      text: `I got ${result.name} in What NBS Freshman Are You? Try it: ${getPublicQuizUrl("shared-result")}`,
       title: "My NBS Freshman Type",
     });
     return "shared" as const;

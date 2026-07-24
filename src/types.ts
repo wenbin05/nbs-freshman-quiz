@@ -59,6 +59,7 @@ export type ResultProfile = {
   tags: string[];
   profile: string;
   wellbeingTips: string[];
+  studentCareMessage: string;
 };
 
 export type SelectedAnswer = {
