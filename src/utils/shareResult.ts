@@ -160,9 +160,16 @@ export async function createResultStoryImage(
   context.globalAlpha = 1;
 
   context.fillStyle = "#24568f";
-  context.font = '30px "Silkscreen", monospace';
+  context.font = '18px "Silkscreen", monospace';
   context.textAlign = "center";
-  context.fillText("NBS WELCOME DAY", storyWidth / 2, 72);
+  context.fillText(
+    "CRAFTED WITH CARE BY THE NBS STUDENT CARE TEAM",
+    storyWidth / 2,
+    40,
+  );
+
+  context.font = '30px "Silkscreen", monospace';
+  context.fillText("NBS WELCOME DAY", storyWidth / 2, 78);
 
   context.fillStyle = "#24568f";
   context.font = '52px "Silkscreen", monospace';
@@ -216,8 +223,8 @@ export async function createResultStoryImage(
   context.drawImage(resultCard, cardX, cardY, cardWidth, cardHeight);
   context.shadowColor = "transparent";
 
-  const resultPanelY = Math.min(cardY + cardHeight + 46, 1390);
-  roundedRect(context, 90, resultPanelY, 900, 300, 42);
+  const resultPanelY = Math.min(cardY + cardHeight + 30, 1270);
+  roundedRect(context, 90, resultPanelY, 900, 205, 38);
   context.fillStyle = palette.panel;
   context.fill();
   context.lineWidth = 5;
@@ -225,27 +232,54 @@ export async function createResultStoryImage(
   context.stroke();
 
   context.fillStyle = palette.accent;
-  context.font = '26px "Silkscreen", monospace';
-  context.fillText("MY FRESHMAN TYPE", storyWidth / 2, resultPanelY + 54);
+  context.font = '23px "Silkscreen", monospace';
+  context.fillText("MY FRESHMAN TYPE", storyWidth / 2, resultPanelY + 44);
 
   context.fillStyle = "#173d70";
-  context.font = '46px "Silkscreen", monospace';
+  context.font = '40px "Silkscreen", monospace';
   const nameLineCount = drawCenteredLines(
     context,
     result.name,
     storyWidth / 2,
-    resultPanelY + 118,
+    resultPanelY + 92,
     790,
-    56,
+    46,
   );
 
-  const tagsY = resultPanelY + 142 + nameLineCount * 50;
+  const tagsY = resultPanelY + 106 + nameLineCount * 42;
   const visibleTags = result.tags.slice(0, 3).join("   ");
   context.fillStyle = "#24568f";
-  context.font = '23px "Silkscreen", monospace';
-  context.fillText(visibleTags, storyWidth / 2, Math.min(tagsY, resultPanelY + 252));
+  context.font = '20px "Silkscreen", monospace';
+  context.fillText(visibleTags, storyWidth / 2, Math.min(tagsY, resultPanelY + 178));
 
-  roundedRect(context, 90, 1696, 900, 176, 34);
+  const supportPanelY = resultPanelY + 223;
+  roundedRect(context, 90, supportPanelY, 900, 188, 34);
+  context.fillStyle = "#ffffff";
+  context.fill();
+  context.lineWidth = 4;
+  context.strokeStyle = "#8fb9e8";
+  context.stroke();
+
+  context.fillStyle = "#24568f";
+  context.font = '20px "Silkscreen", monospace';
+  context.fillText(
+    "A NOTE FROM NBS STUDENT CARE",
+    storyWidth / 2,
+    supportPanelY + 40,
+  );
+
+  context.fillStyle = "#173d70";
+  context.font = '22px system-ui, sans-serif';
+  drawCenteredLines(
+    context,
+    result.studentCareMessage,
+    storyWidth / 2,
+    supportPanelY + 78,
+    800,
+    28,
+  );
+
+  roundedRect(context, 90, 1706, 900, 166, 34);
   context.fillStyle = "#ffffff";
   context.fill();
   context.lineWidth = 4;
@@ -255,13 +289,13 @@ export async function createResultStoryImage(
   context.fillStyle = "#24568f";
   context.font = '28px "Silkscreen", monospace';
   context.textAlign = "left";
-  context.fillText("DISCOVER YOUR NBS TYPE", 132, 1758);
+  context.fillText("DISCOVER YOUR NBS TYPE", 132, 1762);
   context.font = '22px "Silkscreen", monospace';
-  context.fillText("SCAN TO TAKE THE QUIZ", 132, 1806);
+  context.fillText("SCAN TO TAKE THE QUIZ", 132, 1808);
   context.font = '18px "Silkscreen", monospace';
   context.fillText("freshman-quiz.vercel.app", 132, 1848);
 
-  context.drawImage(qrCode, 805, 1711, 144, 144);
+  context.drawImage(qrCode, 810, 1717, 138, 138);
 
   context.fillStyle = "#24568f";
   context.font = '21px "Silkscreen", monospace';

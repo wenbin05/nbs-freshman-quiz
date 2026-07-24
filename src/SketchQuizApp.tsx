@@ -122,7 +122,7 @@ const mobileAssetsToPreload = [
   "q1-character.webp",
   "q1-element.webp",
   "q2-orientation.webp",
-  "q2-orientation-extras.webp",
+  "q2-orientation-extras.png",
   "q2-q5-character.webp",
   "q3-corridor.webp",
   "q3-character.webp",
@@ -153,7 +153,7 @@ function getSketchMobileQuestionArt(
     case "orientation-arena":
       return {
         background: "q2-orientation.webp",
-        backgroundOverlays: beatIndex === 0 ? ["q2-orientation-extras.webp"] : [],
+        backgroundOverlays: beatIndex === 0 ? ["q2-orientation-extras.png"] : [],
         overlays: beatIndex >= 1 ? ["q2-q5-character.webp"] : [],
       };
     case "finding-your-class":
@@ -303,44 +303,6 @@ function playSketchSceneSound(index: number) {
     });
   } catch {
     // Browsers may block audio until a user gesture; the quiz still works without it.
-  }
-}
-
-function playSketchNotificationBurst() {
-  const AudioContextCtor =
-    window.AudioContext ??
-    (window as unknown as { webkitAudioContext?: typeof AudioContext })
-      .webkitAudioContext;
-
-  if (!AudioContextCtor) {
-    return;
-  }
-
-  try {
-    sketchAudioContext ??= new AudioContextCtor();
-
-    if (sketchAudioContext.state === "suspended") {
-      void sketchAudioContext.resume();
-    }
-
-    const now = sketchAudioContext.currentTime + 0.01;
-
-    [659, 740, 831, 988].forEach((frequency, index) => {
-      const oscillator = sketchAudioContext!.createOscillator();
-      const gain = sketchAudioContext!.createGain();
-      const startAt = now + index * 0.13;
-      oscillator.type = "square";
-      oscillator.frequency.setValueAtTime(frequency, startAt);
-      gain.gain.setValueAtTime(0.0001, startAt);
-      gain.gain.exponentialRampToValueAtTime(0.028, startAt + 0.012);
-      gain.gain.exponentialRampToValueAtTime(0.0001, startAt + 0.11);
-      oscillator.connect(gain);
-      gain.connect(sketchAudioContext!.destination);
-      oscillator.start(startAt);
-      oscillator.stop(startAt + 0.12);
-    });
-  } catch {
-    // The notification animation remains usable when autoplay audio is blocked.
   }
 }
 
@@ -1211,7 +1173,6 @@ function SketchQuestionScreen({
   const [optionsVisible, setOptionsVisible] = useState(false);
   const [groupChatOpen, setGroupChatOpen] = useState(false);
   const [noticeSequenceStarted, setNoticeSequenceStarted] = useState(false);
-  const burnoutNotificationSoundPlayedRef = useRef(false);
   const [acknowledgedNoticeKeys, setAcknowledgedNoticeKeys] = useState<
     string[]
   >([]);
@@ -1261,9 +1222,6 @@ function SketchQuestionScreen({
   const optionsActive =
     isChoicePromptReady && optionsVisible;
   const showContinueCue = !isFinalBeat && !isUrgentNoticeScene;
-  const showBurnoutNotifications =
-    question.id === "burnout-monster" &&
-    !sceneIntroVisible;
   const visualBeats = getSketchVisualBeats(question.id, beatIndex, !isTyping);
   const visualSlotCount = getSketchVisualSlotCount(question.id, beatIndex);
   const mobileQuestionArt = useMemo(
@@ -1281,18 +1239,6 @@ function SketchQuestionScreen({
     setAcknowledgedNoticeKeys([]);
     playSketchSceneSound(currentIndex);
   }, [currentIndex, question.id]);
-
-  useEffect(() => {
-    if (
-      !showBurnoutNotifications ||
-      burnoutNotificationSoundPlayedRef.current
-    ) {
-      return;
-    }
-
-    burnoutNotificationSoundPlayedRef.current = true;
-    playSketchNotificationBurst();
-  }, [showBurnoutNotifications]);
 
   useEffect(() => {
     setAcknowledgedNoticeKeys([]);
@@ -1439,8 +1385,6 @@ function SketchQuestionScreen({
         />
       )}
       <div className="sketch-focus-wash" aria-hidden="true" />
-
-      {showBurnoutNotifications && <SketchNotificationStack />}
 
       {showGroupChatTrigger && (
         <button
@@ -1644,28 +1588,6 @@ function SketchSystemNotice({
         </div>
       )}
     </Element>
-  );
-}
-
-function SketchNotificationStack() {
-  const notifications = [
-    "Deadline due",
-    "Meeting invite",
-    "Unread messages",
-    "Are you free?",
-  ];
-
-  return (
-    <div className="sketch-notification-stack" aria-hidden="true">
-      {notifications.map((notification, index) => (
-        <i
-          key={notification}
-          style={{ "--notice-index": index } as CSSProperties}
-        >
-          {notification}
-        </i>
-      ))}
-    </div>
   );
 }
 

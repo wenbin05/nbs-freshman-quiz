@@ -6042,6 +6042,16 @@ body.is-threat-shaking .game-shell {
   top: 28.5%;
 }
 
+.sketch-q-1 .sketch-question-card.is-choice-phase {
+  grid-template-rows: minmax(0, 48%) minmax(0, 52%);
+  height: 62%;
+  top: 24%;
+}
+
+.sketch-q-1 .sketch-question-card.is-choice-phase .sketch-dialogue {
+  padding: 10% 8% 6%;
+}
+
 .sketch-q-6 .sketch-question-card.is-choice-phase {
   grid-template-rows: minmax(0, 48%) minmax(0, 52%);
   height: 62%;
@@ -6171,7 +6181,7 @@ body.is-threat-shaking .game-shell {
 }
 
 .mobile-question-character-spawn .mobile-asset-q1-element {
-  transform: translateY(-27%) scale(0.48);
+  transform: translateY(-38%) scale(0.42);
 }
 
 .mobile-question-character-spawn .mobile-asset-q1-character {
@@ -6315,7 +6325,10 @@ body.is-threat-shaking .game-shell {
 
 .mobile-question-orientation-arena.mobile-beat-0
   .mobile-asset-q2-orientation-extras {
+  animation: none;
   opacity: 1;
+  transform: none;
+  will-change: auto;
 }
 
 .sketch-dialogue pre {
