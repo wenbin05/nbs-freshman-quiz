@@ -864,6 +864,7 @@ function SketchQuizApp() {
   const [attemptId, setAttemptId] = useState(createAttemptId);
   const trackedResultRef = useRef<string | null>(null);
   const trackedLandingRef = useRef(false);
+  const attemptStartedAtRef = useRef<number | null>(null);
   const hasMobileDraftArt = true;
   const showBuildSwitcher = new URLSearchParams(window.location.search).has(
     "debug",
@@ -914,12 +915,16 @@ function SketchQuizApp() {
     trackedResultRef.current = attemptId;
     trackQuizEvent({
       attemptId,
+      durationMs: attemptStartedAtRef.current === null
+        ? undefined
+        : Math.max(0, Math.round(performance.now() - attemptStartedAtRef.current)),
       eventType: "quiz_completed",
       resultId: state.resultId,
     });
   }, [attemptId, state.phase, state.resultId]);
 
   const handleStart = () => {
+    attemptStartedAtRef.current = performance.now();
     trackQuizEvent({ attemptId, eventType: "quiz_started" });
     dispatch({ type: "START" });
   };
@@ -936,6 +941,7 @@ function SketchQuizApp() {
 
   const handleRestart = () => {
     setAttemptId(createAttemptId());
+    attemptStartedAtRef.current = null;
     trackedResultRef.current = null;
     dispatch({ type: "RESTART" });
   };
@@ -1632,6 +1638,9 @@ function SketchResultScreen({
   const reviewTrackedRef = useRef(false);
   const resultCardSrc = resultDesignerCards[result.id];
   const publicQuizUrl = getPublicQuizUrl("result-page");
+  const studentCareEmail = "nbs-studentcare@ntu.edu.sg";
+  const [studentCareIntro, studentCareOutro = ""] =
+    result.studentCareMessage.split(studentCareEmail);
   const completedEvents = useMemo(
     () =>
       completedAnswers
@@ -1731,7 +1740,22 @@ function SketchResultScreen({
 
         <section className="sketch-student-care">
           <h2>A note from Student Care</h2>
-          <p>{result.studentCareMessage}</p>
+          <p>
+            {studentCareIntro}
+            <a
+              href={`mailto:${studentCareEmail}`}
+              onClick={() =>
+                trackQuizEvent({
+                  attemptId,
+                  eventType: "student_care_clicked",
+                  resultId: result.id,
+                })
+              }
+            >
+              {studentCareEmail}
+            </a>
+            {studentCareOutro}
+          </p>
         </section>
 
         <a

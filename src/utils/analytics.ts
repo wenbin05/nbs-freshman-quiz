@@ -19,6 +19,7 @@ type QuizAnalyticsEvent =
   | {
       attemptId: string;
       eventType: "quiz_completed";
+      durationMs?: number;
       resultId: OutcomeId;
     }
   | {
@@ -36,6 +37,41 @@ export function createAttemptId() {
     `attempt-${Date.now()}-${Math.random().toString(36).slice(2)}`;
 }
 
+function getDeviceContext() {
+  const userAgent = navigator.userAgent;
+  const viewportWidth = window.innerWidth;
+  const deviceType = /iPad|Tablet|PlayBook|Silk/i.test(userAgent)
+    ? "tablet"
+    : /Mobi|iPhone|iPod|Android/i.test(userAgent)
+      ? "mobile"
+      : "desktop";
+  const platform = /iPad|iPhone|iPod/i.test(userAgent)
+    ? "ios"
+    : /Android/i.test(userAgent)
+      ? "android"
+      : /Windows/i.test(userAgent)
+        ? "windows"
+        : /Macintosh|Mac OS X/i.test(userAgent)
+          ? "macos"
+          : /CrOS/i.test(userAgent)
+            ? "chromeos"
+            : "other";
+  const viewportBucket = viewportWidth <= 375
+    ? "compact"
+    : viewportWidth <= 430
+      ? "standard-mobile"
+      : viewportWidth <= 820
+        ? "large-mobile"
+        : "desktop";
+
+  return {
+    deviceType,
+    language: navigator.language.slice(0, 12),
+    platform,
+    viewportBucket,
+  };
+}
+
 export function trackQuizEvent(event: QuizAnalyticsEvent) {
   if (!import.meta.env.PROD) {
     return;
@@ -44,6 +80,7 @@ export function trackQuizEvent(event: QuizAnalyticsEvent) {
   void fetch("/api/quiz-events", {
     body: JSON.stringify({
       ...event,
+      ...getDeviceContext(),
       eventId: globalThis.crypto?.randomUUID?.() ??
         `event-${Date.now()}-${Math.random().toString(36).slice(2)}`,
       source: getAttributionSource(),

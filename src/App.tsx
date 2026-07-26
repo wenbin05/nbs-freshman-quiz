@@ -8,6 +8,7 @@ import {
   useState,
 } from "react";
 import { createPortal } from "react-dom";
+import AnalyticsDashboard from "./AnalyticsDashboard";
 import {
   initialScores,
   outcomeOrder,
@@ -2701,7 +2702,12 @@ function ResultScreen({
 }
 
 function App() {
+  const pathname = window.location.pathname.replace(/\/+$/, "") || "/";
   const theme = new URLSearchParams(window.location.search).get("theme");
+
+  if (pathname === "/staff") {
+    return <AnalyticsDashboard />;
+  }
 
   if (theme === "rpg") {
     return <RpgQuizApp />;

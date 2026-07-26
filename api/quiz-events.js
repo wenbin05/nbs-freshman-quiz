@@ -9,6 +9,22 @@ const eventTypes = new Set([
   "student_care_clicked",
 ]);
 const optionIds = new Set(["A", "B", "C", "D"]);
+const deviceTypes = new Set(["mobile", "tablet", "desktop", "unknown"]);
+const platforms = new Set([
+  "ios",
+  "android",
+  "windows",
+  "macos",
+  "chromeos",
+  "other",
+]);
+const viewportBuckets = new Set([
+  "compact",
+  "standard-mobile",
+  "large-mobile",
+  "desktop",
+  "unknown",
+]);
 const resultIds = new Set([
   "overachiever",
   "socialButterfly",
@@ -56,6 +72,24 @@ function isValidPayload(payload) {
   return true;
 }
 
+function allowedValue(value, allowedValues, fallback) {
+  return allowedValues.has(String(value)) ? String(value) : fallback;
+}
+
+function getSupabaseHeaders(secretKey) {
+  const headers = {
+    apikey: secretKey,
+    "Content-Type": "application/json",
+    Prefer: "resolution=ignore-duplicates,return=minimal",
+  };
+
+  if (!secretKey.startsWith("sb_secret_")) {
+    headers.Authorization = `Bearer ${secretKey}`;
+  }
+
+  return headers;
+}
+
 export async function POST(request) {
   let payload;
 
@@ -76,29 +110,57 @@ export async function POST(request) {
     return new Response(null, { status: 204 });
   }
 
-  const headers = {
-    apikey: supabaseSecretKey,
-    "Content-Type": "application/json",
-    Prefer: "return=minimal",
+  const headers = getSupabaseHeaders(supabaseSecretKey);
+  const legacyRow = {
+    attempt_id: payload.attemptId,
+    event_id: payload.eventId,
+    event_type: payload.eventType,
+    option_id: payload.optionId ?? null,
+    question_id: payload.questionId ?? null,
+    result_id: payload.resultId ?? null,
+    source: isShortString(payload.source, 60) ? payload.source : "direct",
   };
-
-  if (!supabaseSecretKey.startsWith("sb_secret_")) {
-    headers.Authorization = `Bearer ${supabaseSecretKey}`;
-  }
-
-  const insertResponse = await fetch(`${supabaseUrl}/rest/v1/quiz_events`, {
-    body: JSON.stringify({
-      attempt_id: payload.attemptId,
-      event_id: payload.eventId,
-      event_type: payload.eventType,
-      option_id: payload.optionId ?? null,
-      question_id: payload.questionId ?? null,
-      result_id: payload.resultId ?? null,
-      source: isShortString(payload.source, 60) ? payload.source : "direct",
-    }),
+  const durationMs = Number.isInteger(payload.durationMs) &&
+    payload.durationMs >= 0 &&
+    payload.durationMs <= 7_200_000
+    ? payload.durationMs
+    : null;
+  const analyticsRow = {
+    ...legacyRow,
+    device_type: allowedValue(payload.deviceType, deviceTypes, "unknown"),
+    duration_ms: durationMs,
+    language: isShortString(payload.language, 12) ? payload.language : "unknown",
+    platform: allowedValue(payload.platform, platforms, "other"),
+    viewport_bucket: allowedValue(
+      payload.viewportBucket,
+      viewportBuckets,
+      "unknown",
+    ),
+  };
+  const endpoint = `${supabaseUrl}/rest/v1/quiz_events`;
+  let insertResponse = await fetch(endpoint, {
+    body: JSON.stringify(analyticsRow),
     headers,
     method: "POST",
   });
+
+  if (insertResponse.status === 400) {
+    const errorBody = await insertResponse.text();
+    const schemaIsOutdated =
+      errorBody.includes("device_type") ||
+      errorBody.includes("duration_ms") ||
+      errorBody.includes("language") ||
+      errorBody.includes("platform") ||
+      errorBody.includes("viewport_bucket");
+
+    if (schemaIsOutdated) {
+      insertResponse = await fetch(endpoint, {
+        body: JSON.stringify(legacyRow),
+        headers,
+        method: "POST",
+      });
+    }
+  }
 
   if (!insertResponse.ok) {
     return Response.json({ error: "Analytics storage failed." }, { status: 502 });

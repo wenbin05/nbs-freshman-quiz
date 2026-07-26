@@ -18,11 +18,26 @@ create table if not exists public.quiz_events (
   option_id text check (option_id is null or option_id in ('A', 'B', 'C', 'D')),
   result_id text,
   source text not null default 'direct',
+  device_type text not null default 'unknown',
+  duration_ms integer,
+  language text,
+  platform text not null default 'unknown',
+  viewport_bucket text not null default 'unknown',
   created_at timestamptz not null default now()
 );
 
 alter table public.quiz_events
   add column if not exists source text not null default 'direct';
+alter table public.quiz_events
+  add column if not exists device_type text not null default 'unknown';
+alter table public.quiz_events
+  add column if not exists duration_ms integer;
+alter table public.quiz_events
+  add column if not exists language text;
+alter table public.quiz_events
+  add column if not exists platform text not null default 'unknown';
+alter table public.quiz_events
+  add column if not exists viewport_bucket text not null default 'unknown';
 
 alter table public.quiz_events
   drop constraint if exists quiz_events_event_type_check;
@@ -43,6 +58,10 @@ alter table public.quiz_events
 
 create index if not exists quiz_events_attempt_id_idx
   on public.quiz_events (attempt_id);
+create index if not exists quiz_events_created_at_idx
+  on public.quiz_events (created_at desc);
+create index if not exists quiz_events_event_type_created_at_idx
+  on public.quiz_events (event_type, created_at desc);
 create index if not exists quiz_events_question_option_idx
   on public.quiz_events (question_id, option_id)
   where event_type = 'answer_selected';

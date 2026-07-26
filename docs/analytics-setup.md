@@ -1,7 +1,9 @@
-# Quiz Analytics Setup
+# Quiz Analytics and Staff Dashboard
 
 The quiz sends anonymous events to `/api/quiz-events` only in production. It
 does not collect names, email addresses, free text, or device identifiers.
+The public staff dashboard is available at `/staff` and reads anonymous,
+aggregate data through a server endpoint.
 
 ## Supabase
 
@@ -14,30 +16,31 @@ does not collect names, email addresses, free text, or device identifiers.
      Instagram Story QR codes)
 4. Redeploy the site.
 
-The secret key stays inside the Vercel Function and must never use a `VITE_`
-prefix or be exposed to browser code.
+The Supabase secret key stays inside Vercel Functions. It must never use a
+`VITE_` prefix or be exposed to browser code.
 
-## Reports
+## Staff dashboard
 
-Run these queries in the Supabase SQL Editor:
+Open:
 
-```sql
-select * from public.quiz_attempt_totals;
-
-select *
-from public.quiz_option_distribution
-order by question_id, option_id;
-
-select *
-from public.quiz_result_distribution
-order by results desc;
-
-select * from public.quiz_conversion_funnel;
-
-select *
-from public.quiz_source_conversion
-order by visitors desc;
+```text
+https://your-quiz-domain.example/staff
 ```
+
+The dashboard opens without a login and includes:
+
+- visits, starts, completions, and conversion rates;
+- answer distribution and drop-off for every question;
+- personality result distribution;
+- completion time and daily participation trend;
+- traffic source, device, platform, and viewport summaries;
+- result shares, journey reviews, quiz-link visits, and Student Care email
+  clicks; and
+- recent anonymous completions without attempt identifiers.
+
+For local visual testing, use `/staff?demo`. Demo mode is disabled in production.
+
+## Data notes
 
 The funnel includes page visits, quiz starts, completed quizzes, result shares,
 journey-review opens, Student Care email clicks, and result-page quiz-link
