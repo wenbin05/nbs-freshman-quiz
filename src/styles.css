@@ -6323,14 +6323,6 @@ body.is-threat-shaking .game-shell {
   animation-duration: 320ms;
 }
 
-.mobile-question-orientation-arena.mobile-beat-0
-  .mobile-asset-q2-orientation-extras {
-  animation: none;
-  opacity: 1;
-  transform: none;
-  will-change: auto;
-}
-
 .sketch-dialogue pre {
   font-size: clamp(0.7rem, 3.05cqw, 0.92rem);
   line-height: 1.42;
@@ -6645,10 +6637,13 @@ button.sketch-system-notice .sketch-system-notice-card small {
 }
 
 .mobile-question-cca-fair.mobile-beat-0
-  .mobile-asset-q2-q5-character,
-.mobile-question-cca-fair.mobile-beat-1
   .mobile-asset-q2-q5-character {
   transform: translate(0, 25%) scale(0.46);
+}
+
+.mobile-question-cca-fair.mobile-beat-1
+  .mobile-asset-q2-q5-character {
+  transform: translate(0, 16%) scale(0.46);
 }
 
 .mobile-question-cca-fair.mobile-beat-2
@@ -6657,7 +6652,7 @@ button.sketch-system-notice .sketch-system-notice-card small {
 }
 
 .mobile-question-cca-fair .mobile-asset-q5-characters {
-  transform: translateY(-3%) scale(0.72);
+  transform: translateY(-7%) scale(0.72);
 }
 
 .sketch-chat-trigger {

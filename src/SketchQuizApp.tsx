@@ -123,7 +123,7 @@ const mobileAssetsToPreload = [
   "q1-character.webp",
   "q1-element.webp",
   "q2-orientation.webp",
-  "q2-orientation-extras.webp",
+  "q2-orientation-banners.jpg",
   "q2-q5-character.webp",
   "q3-corridor.webp",
   "q3-character.webp",
@@ -156,9 +156,10 @@ function getSketchMobileQuestionArt(
       };
     case "orientation-arena":
       return {
-        background: "q2-orientation.webp",
-        backgroundOverlays:
-          beatIndex === 1 ? ["q2-orientation-extras.webp"] : [],
+        background:
+          beatIndex === 1
+            ? "q2-orientation-banners.jpg"
+            : "q2-orientation.webp",
         overlays: beatIndex >= 2 ? ["q2-q5-character.webp"] : [],
       };
     case "finding-your-class":
@@ -265,23 +266,42 @@ let sketchAudioEnabled = true;
 let sketchMusicTimer: number | null = null;
 let sketchMusicStep = 0;
 
-const sketchMusicNotes = [
-  261.63,
-  329.63,
-  392,
-  523.25,
-  392,
-  329.63,
-  293.66,
-  349.23,
-  440,
-  587.33,
-  440,
-  349.23,
-  246.94,
-  293.66,
-  392,
-  493.88,
+const sketchMusicStepMs = 185;
+const sketchMusicChords = [
+  { intervals: [0, 4, 7], root: 48 },
+  { intervals: [0, 3, 7], root: 45 },
+  { intervals: [0, 4, 7], root: 41 },
+  { intervals: [0, 4, 7], root: 43 },
+  { intervals: [0, 3, 7], root: 40 },
+  { intervals: [0, 4, 7], root: 41 },
+  { intervals: [0, 3, 7], root: 38 },
+  { intervals: [0, 4, 7], root: 43 },
+  { intervals: [0, 4, 7], root: 48 },
+  { intervals: [0, 3, 7], root: 47 },
+  { intervals: [0, 3, 7], root: 45 },
+  { intervals: [0, 4, 7], root: 40 },
+  { intervals: [0, 4, 7], root: 41 },
+  { intervals: [0, 3, 7], root: 40 },
+  { intervals: [0, 3, 7], root: 38 },
+  { intervals: [0, 4, 7], root: 43 },
+];
+const sketchMusicLeadBars: Array<Array<number | null>> = [
+  [72, null, 76, 79, 76, null, 74, null],
+  [69, null, 72, 76, 72, null, 71, null],
+  [69, 72, 74, null, 72, 69, 67, null],
+  [71, 74, 79, null, 77, 74, 71, null],
+  [67, null, 71, 76, 74, 71, 67, null],
+  [69, 72, 77, null, 76, 72, 69, null],
+  [65, 69, 72, null, 74, 72, 69, null],
+  [67, 71, 74, 79, 77, 74, 71, null],
+  [76, null, 79, 84, 83, 79, 76, null],
+  [74, 76, 79, null, 83, 79, 76, null],
+  [72, 76, 81, null, 79, 76, 72, null],
+  [71, 76, 80, null, 79, 76, 71, null],
+  [69, 72, 77, 76, 72, 69, 67, null],
+  [67, 71, 76, 74, 71, 67, 64, null],
+  [65, 69, 74, 72, 69, 65, 62, null],
+  [67, 71, 74, 79, 76, 74, 72, null],
 ];
 
 function getSketchAudioContext() {
@@ -303,6 +323,56 @@ function getSketchAudioContext() {
   return sketchAudioContext;
 }
 
+function midiToFrequency(note: number) {
+  return 440 * 2 ** ((note - 69) / 12);
+}
+
+function playSketchMusicTone(
+  context: AudioContext,
+  note: number,
+  startsAt: number,
+  duration: number,
+  volume: number,
+  type: OscillatorType,
+  cutoff = 2400,
+) {
+  const oscillator = context.createOscillator();
+  const filter = context.createBiquadFilter();
+  const gain = context.createGain();
+
+  oscillator.type = type;
+  oscillator.frequency.setValueAtTime(midiToFrequency(note), startsAt);
+  filter.type = "lowpass";
+  filter.frequency.setValueAtTime(cutoff, startsAt);
+  filter.Q.setValueAtTime(0.7, startsAt);
+  gain.gain.setValueAtTime(0.0001, startsAt);
+  gain.gain.exponentialRampToValueAtTime(volume, startsAt + 0.014);
+  gain.gain.exponentialRampToValueAtTime(
+    0.0001,
+    startsAt + Math.max(0.06, duration),
+  );
+  oscillator.connect(filter);
+  filter.connect(gain);
+  gain.connect(context.destination);
+  oscillator.start(startsAt);
+  oscillator.stop(startsAt + duration + 0.025);
+}
+
+function playSketchMusicKick(context: AudioContext, startsAt: number) {
+  const oscillator = context.createOscillator();
+  const gain = context.createGain();
+
+  oscillator.type = "sine";
+  oscillator.frequency.setValueAtTime(105, startsAt);
+  oscillator.frequency.exponentialRampToValueAtTime(48, startsAt + 0.11);
+  gain.gain.setValueAtTime(0.008, startsAt);
+  gain.gain.exponentialRampToValueAtTime(0.0001, startsAt + 0.13);
+  oscillator.connect(gain);
+  gain.connect(context.destination);
+  oscillator.start(startsAt);
+  oscillator.stop(startsAt + 0.14);
+}
+
 function playSketchMusicStep() {
   if (!sketchAudioEnabled) {
     return;
@@ -314,34 +384,38 @@ function playSketchMusicStep() {
     return;
   }
 
-  const note = sketchMusicNotes[sketchMusicStep % sketchMusicNotes.length];
+  const loopStep =
+    sketchMusicStep % (sketchMusicChords.length * sketchMusicLeadBars[0].length);
+  const barIndex = Math.floor(loopStep / 8);
+  const stepInBar = loopStep % 8;
+  const chord = sketchMusicChords[barIndex];
+  const leadNote = sketchMusicLeadBars[barIndex][stepInBar];
   const now = context.currentTime + 0.01;
-  const oscillator = context.createOscillator();
-  const gain = context.createGain();
 
-  oscillator.type = "square";
-  oscillator.frequency.setValueAtTime(note, now);
-  gain.gain.setValueAtTime(0.0001, now);
-  gain.gain.exponentialRampToValueAtTime(0.012, now + 0.018);
-  gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.19);
-  oscillator.connect(gain);
-  gain.connect(context.destination);
-  oscillator.start(now);
-  oscillator.stop(now + 0.21);
+  if (leadNote !== null) {
+    playSketchMusicTone(context, leadNote, now, 0.24, 0.0065, "square", 1850);
+  }
 
-  if (sketchMusicStep % 4 === 0) {
-    const bass = context.createOscillator();
-    const bassGain = context.createGain();
+  if (stepInBar % 2 === 0) {
+    const arpInterval =
+      chord.intervals[(stepInBar / 2 + barIndex) % chord.intervals.length];
+    playSketchMusicTone(
+      context,
+      chord.root + 12 + arpInterval,
+      now,
+      0.12,
+      0.0028,
+      "square",
+      1350,
+    );
+  }
 
-    bass.type = "triangle";
-    bass.frequency.setValueAtTime(note / 2, now);
-    bassGain.gain.setValueAtTime(0.0001, now);
-    bassGain.gain.exponentialRampToValueAtTime(0.008, now + 0.025);
-    bassGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.42);
-    bass.connect(bassGain);
-    bassGain.connect(context.destination);
-    bass.start(now);
-    bass.stop(now + 0.44);
+  if (stepInBar === 0 || stepInBar === 4) {
+    const bassNote = stepInBar === 0 ? chord.root - 12 : chord.root - 5;
+    playSketchMusicTone(context, bassNote, now, 0.42, 0.006, "triangle", 800);
+    playSketchMusicKick(context, now);
+  } else if (stepInBar === 2 || stepInBar === 6) {
+    playSketchMusicTone(context, 94, now, 0.035, 0.0011, "square", 4200);
   }
 
   sketchMusicStep += 1;
@@ -353,7 +427,10 @@ function startSketchMusic() {
   }
 
   playSketchMusicStep();
-  sketchMusicTimer = window.setInterval(playSketchMusicStep, 265);
+  sketchMusicTimer = window.setInterval(
+    playSketchMusicStep,
+    sketchMusicStepMs,
+  );
 }
 
 function stopSketchMusic() {
