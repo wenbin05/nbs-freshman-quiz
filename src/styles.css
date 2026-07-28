@@ -7383,3 +7383,130 @@ button.sketch-system-notice .sketch-system-notice-card small {
     padding: 25px 20px;
   }
 }
+
+/* Final event pacing and mobile readability pass */
+.sketch-phase-start .sketch-stage::after {
+  animation: sketchStartLightFlicker 4.4s steps(1, end) infinite;
+  background:
+    linear-gradient(
+      105deg,
+      transparent 0 34%,
+      rgba(255, 250, 211, 0.2) 45%,
+      transparent 58%
+    ),
+    rgba(255, 249, 220, 0.08);
+  content: "";
+  inset: 0;
+  pointer-events: none;
+  position: absolute;
+  z-index: 3;
+}
+
+.sketch-system-notice {
+  animation-duration: var(--notice-duration, 3000ms);
+}
+
+.sketch-system-notice-art {
+  height: 112%;
+  left: -6%;
+  top: -6%;
+  width: 112%;
+}
+
+.sketch-system-notice.has-custom-card .sketch-system-notice-card {
+  max-width: 92%;
+  width: min(88%, 440px);
+}
+
+.sketch-system-notice.has-custom-card .sketch-system-notice-card span,
+.sketch-system-notice.has-custom-card .sketch-system-notice-card strong {
+  overflow-wrap: normal;
+  text-wrap: balance;
+  word-break: keep-all;
+}
+
+.sketch-dialogue pre {
+  white-space: pre-wrap;
+}
+
+.sketch-result-designer-card {
+  justify-self: center;
+  max-width: 540px;
+  width: 100%;
+}
+
+.sketch-result-card {
+  overflow-x: hidden;
+  padding-inline: 12px;
+}
+
+.mobile-question-orientation-arena.mobile-beat-2
+  .mobile-asset-q2-q5-character {
+  transform: translate(0, 46%) scale(0.4);
+}
+
+.sketch-student-care {
+  gap: 6px;
+  padding: 11px 12px;
+}
+
+.sketch-student-care h2 {
+  font-size: clamp(0.58rem, 2.45cqw, 0.76rem);
+}
+
+.sketch-student-care p,
+.sketch-student-care a {
+  font-size: clamp(0.66rem, 2.7cqw, 0.82rem);
+  line-height: 1.4;
+}
+
+@container (max-width: 350px) {
+  .sketch-result-designer-card {
+    width: 100%;
+  }
+
+  .sketch-system-notice.has-custom-card .sketch-system-notice-card {
+    padding-inline: 16px;
+    width: 92%;
+  }
+}
+
+@keyframes sketchStartLightFlicker {
+  0%,
+  16%,
+  19%,
+  48%,
+  53%,
+  82%,
+  100% {
+    opacity: 0.2;
+  }
+  17%,
+  18%,
+  49%,
+  52% {
+    opacity: 0.7;
+  }
+  83% {
+    opacity: 0.48;
+  }
+  84% {
+    opacity: 0.08;
+  }
+}
+
+@keyframes sketchNoticeLifecycle {
+  0% {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  8%,
+  90% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}

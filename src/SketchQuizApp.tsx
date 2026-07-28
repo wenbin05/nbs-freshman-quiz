@@ -11,6 +11,7 @@ import "@fontsource/silkscreen/400.css";
 import {
   initialScores,
   outcomeOrder,
+  primaryOutcomeOpportunities,
   quizQuestions,
   resultProfiles,
 } from "./data/quiz";
@@ -122,7 +123,7 @@ const mobileAssetsToPreload = [
   "q1-character.webp",
   "q1-element.webp",
   "q2-orientation.webp",
-  "q2-orientation-extras.png",
+  "q2-orientation-extras.webp",
   "q2-q5-character.webp",
   "q3-corridor.webp",
   "q3-character.webp",
@@ -138,6 +139,9 @@ const mobileAssetsToPreload = [
   "q7-finals-stress.webp",
   "q8-portal.webp",
   "q8-character.webp",
+  "popup-attend-orientation.png",
+  "popup-navigation.png",
+  "popup-calculating-build.png",
 ];
 
 function getSketchMobileQuestionArt(
@@ -153,8 +157,9 @@ function getSketchMobileQuestionArt(
     case "orientation-arena":
       return {
         background: "q2-orientation.webp",
-        backgroundOverlays: beatIndex === 0 ? ["q2-orientation-extras.png"] : [],
-        overlays: beatIndex >= 1 ? ["q2-q5-character.webp"] : [],
+        backgroundOverlays:
+          beatIndex === 1 ? ["q2-orientation-extras.webp"] : [],
+        overlays: beatIndex >= 2 ? ["q2-q5-character.webp"] : [],
       };
     case "finding-your-class":
       return {
@@ -193,7 +198,7 @@ function getSketchMobileQuestionArt(
 }
 
 function getSketchNoticeDuration(kind: SketchNotice["kind"]) {
-  return kind === "warning" ? 2300 : 1800;
+  return kind === "warning" ? 3400 : 3000;
 }
 
 const sketchPreludeSteps: SketchPreludeStep[] = [
@@ -206,7 +211,7 @@ const sketchPreludeSteps: SketchPreludeStep[] = [
     tone: "arrival",
   },
   {
-    autoAdvanceMs: 1800,
+    autoAdvanceMs: 2500,
     foreground: "img_3689.png",
     kind: "notice",
     notice: {
@@ -219,7 +224,7 @@ const sketchPreludeSteps: SketchPreludeStep[] = [
     tone: "hologram",
   },
   {
-    autoAdvanceMs: 1900,
+    autoAdvanceMs: 2600,
     foreground: "img_3689.png",
     kind: "notice",
     notice: {
@@ -240,11 +245,11 @@ const sketchPreludeSteps: SketchPreludeStep[] = [
     tone: "arrival",
   },
   {
-    autoAdvanceMs: 1800,
+    autoAdvanceMs: 2500,
     foreground: "img_3689.png",
     kind: "notice",
     notice: {
-      art: "popup-04.webp",
+      art: "popup-attend-orientation.png",
       body: "Attend Orientation.",
       key: "prelude-orientation-objective",
       kind: "event",
@@ -256,25 +261,121 @@ const sketchPreludeSteps: SketchPreludeStep[] = [
 ];
 
 let sketchAudioContext: AudioContext | null = null;
+let sketchAudioEnabled = true;
+let sketchMusicTimer: number | null = null;
+let sketchMusicStep = 0;
 
-function playSketchSceneSound(index: number) {
+const sketchMusicNotes = [
+  261.63,
+  329.63,
+  392,
+  523.25,
+  392,
+  329.63,
+  293.66,
+  349.23,
+  440,
+  587.33,
+  440,
+  349.23,
+  246.94,
+  293.66,
+  392,
+  493.88,
+];
+
+function getSketchAudioContext() {
   const AudioContextCtor =
     window.AudioContext ??
     (window as unknown as { webkitAudioContext?: typeof AudioContext })
       .webkitAudioContext;
 
   if (!AudioContextCtor) {
+    return null;
+  }
+
+  sketchAudioContext ??= new AudioContextCtor();
+
+  if (sketchAudioContext.state === "suspended") {
+    void sketchAudioContext.resume();
+  }
+
+  return sketchAudioContext;
+}
+
+function playSketchMusicStep() {
+  if (!sketchAudioEnabled) {
+    return;
+  }
+
+  const context = getSketchAudioContext();
+
+  if (!context) {
+    return;
+  }
+
+  const note = sketchMusicNotes[sketchMusicStep % sketchMusicNotes.length];
+  const now = context.currentTime + 0.01;
+  const oscillator = context.createOscillator();
+  const gain = context.createGain();
+
+  oscillator.type = "square";
+  oscillator.frequency.setValueAtTime(note, now);
+  gain.gain.setValueAtTime(0.0001, now);
+  gain.gain.exponentialRampToValueAtTime(0.012, now + 0.018);
+  gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.19);
+  oscillator.connect(gain);
+  gain.connect(context.destination);
+  oscillator.start(now);
+  oscillator.stop(now + 0.21);
+
+  if (sketchMusicStep % 4 === 0) {
+    const bass = context.createOscillator();
+    const bassGain = context.createGain();
+
+    bass.type = "triangle";
+    bass.frequency.setValueAtTime(note / 2, now);
+    bassGain.gain.setValueAtTime(0.0001, now);
+    bassGain.gain.exponentialRampToValueAtTime(0.008, now + 0.025);
+    bassGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.42);
+    bass.connect(bassGain);
+    bassGain.connect(context.destination);
+    bass.start(now);
+    bass.stop(now + 0.44);
+  }
+
+  sketchMusicStep += 1;
+}
+
+function startSketchMusic() {
+  if (!sketchAudioEnabled || sketchMusicTimer !== null) {
+    return;
+  }
+
+  playSketchMusicStep();
+  sketchMusicTimer = window.setInterval(playSketchMusicStep, 265);
+}
+
+function stopSketchMusic() {
+  if (sketchMusicTimer !== null) {
+    window.clearInterval(sketchMusicTimer);
+    sketchMusicTimer = null;
+  }
+}
+
+function playSketchSceneSound(index: number) {
+  if (!sketchAudioEnabled) {
     return;
   }
 
   try {
-    sketchAudioContext ??= new AudioContextCtor();
+    const context = getSketchAudioContext();
 
-    if (sketchAudioContext.state === "suspended") {
-      void sketchAudioContext.resume();
+    if (!context) {
+      return;
     }
 
-    const now = sketchAudioContext.currentTime + 0.01;
+    const now = context.currentTime + 0.01;
     const scenePatterns = [
       [392, 523],
       [440, 587],
@@ -288,8 +389,8 @@ function playSketchSceneSound(index: number) {
     const pattern = scenePatterns[index] ?? scenePatterns[0];
 
     pattern.forEach((frequency, noteIndex) => {
-      const oscillator = sketchAudioContext!.createOscillator();
-      const gain = sketchAudioContext!.createGain();
+      const oscillator = context.createOscillator();
+      const gain = context.createGain();
       const startAt = now + noteIndex * 0.085;
       oscillator.type = index >= 5 ? "triangle" : "sine";
       oscillator.frequency.setValueAtTime(frequency, startAt);
@@ -297,7 +398,7 @@ function playSketchSceneSound(index: number) {
       gain.gain.exponentialRampToValueAtTime(0.045, startAt + 0.02);
       gain.gain.exponentialRampToValueAtTime(0.0001, startAt + 0.18);
       oscillator.connect(gain);
-      gain.connect(sketchAudioContext!.destination);
+      gain.connect(context.destination);
       oscillator.start(startAt);
       oscillator.stop(startAt + 0.2);
     });
@@ -340,9 +441,18 @@ function selectWinner(scores: ScoreMap, answers: SelectedAnswer[]): OutcomeId {
     count: answers.filter((answer) => answer.primaryOutcome === outcome).length,
     outcome,
   }));
-  const highestPrimaryCount = Math.max(...primaryCounts.map(({ count }) => count));
+  const strongestPrimary = primaryCounts.reduce((strongest, candidate) =>
+    candidate.count * primaryOutcomeOpportunities[strongest.outcome] >
+    strongest.count * primaryOutcomeOpportunities[candidate.outcome]
+      ? candidate
+      : strongest,
+  );
   const primaryTies = primaryCounts
-    .filter(({ count }) => count === highestPrimaryCount)
+    .filter(
+      ({ count, outcome }) =>
+        count * primaryOutcomeOpportunities[strongestPrimary.outcome] ===
+        strongestPrimary.count * primaryOutcomeOpportunities[outcome],
+    )
     .map(({ outcome }) => outcome);
 
   if (primaryTies.length === 1) {
@@ -446,15 +556,16 @@ function getSketchDialogueBeats(question: (typeof quizQuestions)[number]) {
       return [cleanText(`${question.scenario}\n\n${prompt}`)];
     case "orientation-arena":
       return [
-        "You enter WCY Plaza and suddenly observe:\nLoud cheers.\nSeniors hyping the crowd.\nFriend groups forming in real time.",
+        "You enter WCY Plaza and suddenly observe:",
+        "Loud cheers.\nSeniors hyping the crowd.\nFriend groups forming in real time.",
         cleanText(
-          `Looks like I have to survive this Orientation event.\n\n${prompt}`,
+          `"Looks like I have to survive this Orientation event."\n\n${prompt}`,
         ),
       ];
     case "finding-your-class":
       return [
         cleanText(
-          "You’re back at the WCY Plaza entrance again.\nYou start walking. Left turn. Right turn. Another corridor. You are unable to find your class.",
+          "You’re back at the WCY Plaza entrance again.\n\nYou start walking. Left turn. Right turn. Another corridor. You are unable to find your class.",
         ),
         cleanText(
           `Class is starting soon, and every corridor looks suspiciously similar.\n\n${prompt}`,
@@ -462,22 +573,22 @@ function getSketchDialogueBeats(question: (typeof quizQuestions)[number]) {
       ];
     case "group-project":
       return [
-        "You finally reach the classroom.\nThe prof says:\n“Form groups.”",
+        "You finally reach the classroom.\n\nThe prof says:\n“Form groups.”",
         cleanText(
           `People cluster like they planned for this before class.\nYou’re in a group chat now: Biz Case grp 3.\n\n${prompt}`,
         ),
       ];
     case "cca-fair":
       return [
-        "Class ends. You try to leave campus.\nYou think you’re finally done, but your path automatically reroutes back to WCY Plaza.",
-        "Your surroundings are louder.\nSomeone hands you a tote bag. Another person pitches you an offer before you can react.",
+        "Class ends. You try to leave campus.\n\nYou think you’re finally done, but your path automatically reroutes back to WCY Plaza.",
+        "Your surroundings are louder.\n\nSomeone hands you a tote bag. Another person pitches you an offer before you can react.",
         cleanText(
           `You didn't plan for this.\n\n${prompt}`,
         ),
       ];
     case "burnout-monster":
       return [
-        "The environment suddenly darkens.\nYour phone keeps lighting up. Alerts stack at the corners of your vision.",
+        "The environment suddenly darkens.\n\nYour phone keeps lighting up. Alerts stack at the corners of your vision.",
         "A figure forms.",
         cleanText(
           `You are not prepared.\nThe Burnout Monster is in front of you, and the alerts are still stacking.\n\n${prompt}`,
@@ -485,7 +596,7 @@ function getSketchDialogueBeats(question: (typeof quizQuestions)[number]) {
       ];
     case "finals-mode":
       return [
-        "The notifications start slowing down. The monster finally disappears.\nSilence.\nThen, before you can catch a break, time speeds up. Days feel shorter.",
+        "The notifications start slowing down. The monster finally disappears.\n\nSilence.\n\nThen, before you can catch a break, time speeds up. Days feel shorter.",
         cleanText(
           `You check the calendar.\nFinals are now close enough to stare back.\n\n${prompt}`,
         ),
@@ -579,7 +690,7 @@ function getSketchNotices(
   questionId: (typeof quizQuestions)[number]["id"],
   beatIndex: number,
 ): SketchNotice[] {
-  if (questionId === "orientation-arena" && beatIndex === 0) {
+  if (questionId === "orientation-arena" && beatIndex === 1) {
     return [
       {
         advanceOnClose: true,
@@ -596,7 +707,7 @@ function getSketchNotices(
     return [
       {
         advanceOnClose: true,
-        art: "popup-07.webp",
+        art: "popup-navigation.png",
         body: "Attend your first class.",
         key: "navigation-challenge",
         kind: "event",
@@ -892,6 +1003,16 @@ function SketchQuizApp() {
   }, []);
 
   useEffect(() => {
+    if (state.phase !== "start") {
+      startSketchMusic();
+    } else {
+      stopSketchMusic();
+    }
+  }, [state.phase]);
+
+  useEffect(() => () => stopSketchMusic(), []);
+
+  useEffect(() => {
     if (state.phase !== "calculating") {
       return;
     }
@@ -926,6 +1047,9 @@ function SketchQuizApp() {
   const handleStart = () => {
     attemptStartedAtRef.current = performance.now();
     trackQuizEvent({ attemptId, eventType: "quiz_started" });
+
+    startSketchMusic();
+
     dispatch({ type: "START" });
   };
 
@@ -996,6 +1120,7 @@ function SketchQuizApp() {
             result={result}
           />
         )}
+
       </section>
 
       {showBuildSwitcher && (
@@ -1206,7 +1331,7 @@ function SketchQuestionScreen({
     () => getSketchNotices(question.id, beatIndex),
     [beatIndex, question.id],
   );
-  const isUrgentNoticeScene =
+  const isAutomaticNoticeScene =
     question.id === "burnout-monster" ||
     question.id === "finals-mode" ||
     question.id === "weekend-portal";
@@ -1214,27 +1339,34 @@ function SketchQuestionScreen({
     beatNotices.find(
       (notice) => !acknowledgedNoticeKeys.includes(notice.key),
     ) ?? null;
-  const noticeRequiresClick = Boolean(pendingNotice && !isUrgentNoticeScene);
+  const noticeRequiresClick = Boolean(
+    pendingNotice && !isAutomaticNoticeScene,
+  );
   const noticeBlocksOptions =
     question.id === "weekend-portal" && Boolean(pendingNotice);
   const activeNotice =
     !sceneIntroVisible &&
     !isTyping &&
-    (isUrgentNoticeScene || noticeSequenceStarted)
+    noticeSequenceStarted
       ? pendingNotice
       : null;
   const isChoicePromptReady =
     isFinalBeat && !noticeRequiresClick && !noticeBlocksOptions;
   const optionsActive =
     isChoicePromptReady && optionsVisible;
-  const showContinueCue = !isFinalBeat && !isUrgentNoticeScene;
+  const showContinueCue = !isFinalBeat && !isAutomaticNoticeScene;
   const visualBeats = getSketchVisualBeats(question.id, beatIndex, !isTyping);
   const visualSlotCount = getSketchVisualSlotCount(question.id, beatIndex);
   const mobileQuestionArt = useMemo(
     () => getSketchMobileQuestionArt(question.id, beatIndex),
     [beatIndex, question.id],
   );
-  const showIsolatedNotice = Boolean(activeNotice && !isUrgentNoticeScene);
+  const showIsolatedNotice = Boolean(
+    activeNotice &&
+      (!isAutomaticNoticeScene || question.id === "weekend-portal"),
+  );
+  const hideQuestionUntilPortalNoticeCloses =
+    question.id === "weekend-portal" && Boolean(pendingNotice);
 
   useEffect(() => {
     setSceneIntroVisible(false);
@@ -1250,6 +1382,25 @@ function SketchQuestionScreen({
     setAcknowledgedNoticeKeys([]);
     setNoticeSequenceStarted(false);
   }, [beatIndex, question.id]);
+
+  useEffect(() => {
+    if (!pendingNotice || !isAutomaticNoticeScene || sceneIntroVisible) {
+      return;
+    }
+
+    const delayMs = question.id === "weekend-portal" ? 80 : 1600;
+    const timeout = window.setTimeout(() => {
+      setNoticeSequenceStarted(true);
+    }, delayMs);
+
+    return () => window.clearTimeout(timeout);
+  }, [
+    beatIndex,
+    isAutomaticNoticeScene,
+    pendingNotice,
+    question.id,
+    sceneIntroVisible,
+  ]);
 
   useEffect(() => {
     if (!showGroupChatTrigger) {
@@ -1357,7 +1508,11 @@ function SketchQuestionScreen({
       return;
     }
 
-    if (pendingNotice && !isUrgentNoticeScene && !noticeSequenceStarted) {
+    if (
+      pendingNotice &&
+      !isAutomaticNoticeScene &&
+      !noticeSequenceStarted
+    ) {
       setNoticeSequenceStarted(true);
       return;
     }
@@ -1442,7 +1597,7 @@ function SketchQuestionScreen({
         />
       )}
 
-      {!showIsolatedNotice && (
+      {!showIsolatedNotice && !hideQuestionUntilPortalNoticeCloses && (
         <div className="sketch-quiz-layer">
           <div className="sketch-topbar">
             <span>{`${currentIndex + 1}/${quizQuestions.length}`}</span>
@@ -1599,7 +1754,7 @@ function SketchSystemNotice({
 
 function SketchCalculationScreen() {
   const notice: SketchNotice = {
-    art: "popup-14.webp",
+    art: "popup-calculating-build.png",
     body: "Calculating Build...",
     key: "events-complete",
     kind: "event",

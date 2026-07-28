@@ -49,9 +49,9 @@ export const quizQuestions: QuizQuestion[] = [
       },
       {
         id: "C",
-        label: "Emotional support item + snacks",
+        label: "plushie, hoodie, snacks",
         title: "Pack the Comfort Kit",
-        detail: "Emotional support item plus snacks.",
+        detail: "Plushie, hoodie, snacks.",
         weights: { softSupporter: 2, lostButVibing: 1 },
         primaryOutcome: "softSupporter",
       },
@@ -93,7 +93,7 @@ export const quizQuestions: QuizQuestion[] = [
         label: "Talk to EVERYONE. You now have 12 new friends",
         title: "Cast Mass Friendship",
         detail: "Talk to everyone. Somehow, you now have twelve new friends.",
-        weights: { socialButterfly: 3 },
+        weights: { socialButterfly: 2, overachiever: 1 },
         primaryOutcome: "socialButterfly",
       },
       {
@@ -101,7 +101,7 @@ export const quizQuestions: QuizQuestion[] = [
         label: "Stick to 1–2 people and trauma bond quietly",
         title: "Form a Small Party",
         detail: "Stick to one or two people and survive quietly together.",
-        weights: { softSupporter: 2, lowkeyStrategist: 1 },
+        weights: { softSupporter: 2, socialButterfly: 1 },
         primaryOutcome: "softSupporter",
       },
       {
@@ -140,23 +140,23 @@ export const quizQuestions: QuizQuestion[] = [
         label: "Google Maps + NTU map + walk faster like it’s intentional",
         title: "Triangulate Route",
         detail: "Google Maps, NTU map, and walk faster like it’s intentional.",
-        weights: { overachiever: 1, lowkeyStrategist: 2 },
-        primaryOutcome: "lowkeyStrategist",
+        weights: { overachiever: 2, lowkeyStrategist: 1 },
+        primaryOutcome: "overachiever",
       },
       {
         id: "B",
         label: "Ask a random senior: “hi sorry where is LT5 😭”",
         title: "Request Senior Intel",
         detail: "Ask a random senior: “hi sorry where is LT5”.",
-        weights: { socialButterfly: 2, softSupporter: 1 },
-        primaryOutcome: "socialButterfly",
+        weights: { lowkeyStrategist: 2, socialButterfly: 1 },
+        primaryOutcome: "lowkeyStrategist",
       },
       {
         id: "C",
         label: "Pretend you know where you’re going while slowly spiralling",
         title: "Maintain Main Character Walk",
         detail: "Pretend you know where you’re going while slowly spiralling.",
-        weights: { lostButVibing: 2, lowkeyStrategist: 1 },
+        weights: { lostButVibing: 2, weBallAgent: 1 },
         primaryOutcome: "lostButVibing",
       },
       {
@@ -205,15 +205,15 @@ export const quizQuestions: QuizQuestion[] = [
         label: "“I’ll just do my part… y’all don’t worry”",
         title: "Quietly Take a Lane",
         detail: "Do your part properly and keep things moving.",
-        weights: { softSupporter: 2, lowkeyStrategist: 1 },
-        primaryOutcome: "softSupporter",
+        weights: { lowkeyStrategist: 2, softSupporter: 1 },
+        primaryOutcome: "lowkeyStrategist",
       },
       {
         id: "D",
         label: "“We ball.”",
         title: "Enable Chaos Protocol",
         detail: "No plan. Full confidence.",
-        weights: { weBallAgent: 3 },
+        weights: { weBallAgent: 2, socialButterfly: 1 },
         primaryOutcome: "weBallAgent",
       },
     ],
@@ -315,8 +315,8 @@ export const quizQuestions: QuizQuestion[] = [
         label: "Take a nap. Reset.",
         title: "Use Recovery Potion",
         detail: "Take a nap. Reset.",
-        weights: { lostButVibing: 2, softSupporter: 1 },
-        primaryOutcome: "lostButVibing",
+        weights: { lowkeyStrategist: 2, softSupporter: 1 },
+        primaryOutcome: "lowkeyStrategist",
       },
       {
         id: "D",
@@ -364,8 +364,8 @@ export const quizQuestions: QuizQuestion[] = [
         label: "“Still got time lah”",
         title: "Delay the Countdown",
         detail: "“Still got time lah.”",
-        weights: { lostButVibing: 2, weBallAgent: 1 },
-        primaryOutcome: "lostButVibing",
+        weights: { weBallAgent: 2, lostButVibing: 1 },
+        primaryOutcome: "weBallAgent",
       },
       {
         id: "D",
@@ -411,7 +411,7 @@ export const quizQuestions: QuizQuestion[] = [
         label: "Hang out, cafe hop, live life",
         title: "Enter Social Free Roam",
         detail: "Hang out, cafe hop, live life.",
-        weights: { socialButterfly: 2, weBallAgent: 1 },
+        weights: { socialButterfly: 2, softSupporter: 1 },
         primaryOutcome: "socialButterfly",
       },
       {
@@ -433,6 +433,16 @@ export const quizQuestions: QuizQuestion[] = [
     ],
   },
 ];
+
+export const primaryOutcomeOpportunities: ScoreMap = quizQuestions.reduce<ScoreMap>(
+  (counts, question) => {
+    for (const option of question.options) {
+      counts[option.primaryOutcome] += 1;
+    }
+    return counts;
+  },
+  { ...initialScores },
+);
 
 export const resultProfiles: Record<OutcomeId, ResultProfile> = {
   overachiever: {

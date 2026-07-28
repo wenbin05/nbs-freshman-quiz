@@ -12,6 +12,7 @@ import AnalyticsDashboard from "./AnalyticsDashboard";
 import {
   initialScores,
   outcomeOrder,
+  primaryOutcomeOpportunities,
   quizQuestions,
   resultProfiles,
 } from "./data/quiz";
@@ -112,9 +113,18 @@ function selectWinner(scores: ScoreMap, answers: SelectedAnswer[]): OutcomeId {
     outcome,
     count: answers.filter((answer) => answer.primaryOutcome === outcome).length,
   }));
-  const highestPrimaryCount = Math.max(...primaryCounts.map(({ count }) => count));
+  const strongestPrimary = primaryCounts.reduce((strongest, candidate) =>
+    candidate.count * primaryOutcomeOpportunities[strongest.outcome] >
+    strongest.count * primaryOutcomeOpportunities[candidate.outcome]
+      ? candidate
+      : strongest,
+  );
   const primaryTies = primaryCounts
-    .filter(({ count }) => count === highestPrimaryCount)
+    .filter(
+      ({ count, outcome }) =>
+        count * primaryOutcomeOpportunities[strongestPrimary.outcome] ===
+        strongestPrimary.count * primaryOutcomeOpportunities[outcome],
+    )
     .map(({ outcome }) => outcome);
 
   if (primaryTies.length === 1) {
