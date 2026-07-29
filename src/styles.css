@@ -7380,7 +7380,7 @@ button.sketch-system-notice .sketch-system-notice-card small {
 }
 
 /* Final event pacing and mobile readability pass */
-.sketch-phase-start .sketch-stage::after {
+.sketch-phase-start .sketch-mobile-art.is-start-art::after {
   animation: sketchStartLightFlicker 4.4s steps(1, end) infinite;
   background:
     linear-gradient(

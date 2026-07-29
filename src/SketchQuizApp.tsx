@@ -222,7 +222,6 @@ const sketchPreludeSteps: SketchPreludeStep[] = [
       kind: "info",
       title: "Welcome, Player.",
     },
-    tone: "hologram",
   },
   {
     autoAdvanceMs: 2600,
@@ -236,7 +235,6 @@ const sketchPreludeSteps: SketchPreludeStep[] = [
       title: "Quest Log Updated",
     },
     showWelcomePane: true,
-    tone: "hologram",
   },
   {
     body: "...Did I just get isekai'd into NBS?",
@@ -257,7 +255,6 @@ const sketchPreludeSteps: SketchPreludeStep[] = [
       title: "New Objective Unlocked",
     },
     showWelcomePane: true,
-    tone: "hologram",
   },
 ];
 
@@ -504,6 +501,27 @@ function mergeScores(scores: ScoreMap, weights: Partial<ScoreMap>): ScoreMap {
   );
 }
 
+function selectFingerprintTie(
+  tiedOutcomes: OutcomeId[],
+  answers: SelectedAnswer[],
+): OutcomeId {
+  let fingerprint = 2166136261;
+
+  for (const answer of answers) {
+    const token = `${answer.questionId}:${answer.optionId}`;
+    for (let index = 0; index < token.length; index += 1) {
+      fingerprint ^= token.charCodeAt(index);
+      fingerprint = Math.imul(fingerprint, 16777619);
+    }
+  }
+
+  return (
+    tiedOutcomes[(fingerprint >>> 0) % tiedOutcomes.length] ??
+    tiedOutcomes[0] ??
+    outcomeOrder[0]
+  );
+}
+
 function selectWinner(scores: ScoreMap, answers: SelectedAnswer[]): OutcomeId {
   const highestScore = Math.max(...outcomeOrder.map((outcome) => scores[outcome]));
   const tiedOutcomes = outcomeOrder.filter(
@@ -536,11 +554,7 @@ function selectWinner(scores: ScoreMap, answers: SelectedAnswer[]): OutcomeId {
     return primaryTies[0];
   }
 
-  const recentPrimary = [...answers]
-    .reverse()
-    .find((answer) => primaryTies.includes(answer.primaryOutcome));
-
-  return recentPrimary?.primaryOutcome ?? primaryTies[0] ?? outcomeOrder[0];
+  return selectFingerprintTie(primaryTies, answers);
 }
 
 function sketchReducer(
@@ -2006,8 +2020,8 @@ function SketchResultScreen({
             src={`${mobileDraftAsset}quiz-qr-code.png`}
           />
           <span>
-            <strong>Share the quiz</strong>
-            <small>Scan or tap to discover your NBS Freshman type</small>
+            <strong>Interested in knowing your NBS freshmen type?</strong>
+            <small>Scan the QR code to take the quiz</small>
           </span>
         </a>
 

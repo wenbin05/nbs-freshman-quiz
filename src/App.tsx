@@ -99,6 +99,27 @@ function mergeScores(scores: ScoreMap, weights: Partial<ScoreMap>): ScoreMap {
   );
 }
 
+function selectFingerprintTie(
+  tiedOutcomes: OutcomeId[],
+  answers: SelectedAnswer[],
+): OutcomeId {
+  let fingerprint = 2166136261;
+
+  for (const answer of answers) {
+    const token = `${answer.questionId}:${answer.optionId}`;
+    for (let index = 0; index < token.length; index += 1) {
+      fingerprint ^= token.charCodeAt(index);
+      fingerprint = Math.imul(fingerprint, 16777619);
+    }
+  }
+
+  return (
+    tiedOutcomes[(fingerprint >>> 0) % tiedOutcomes.length] ??
+    tiedOutcomes[0] ??
+    outcomeOrder[0]
+  );
+}
+
 function selectWinner(scores: ScoreMap, answers: SelectedAnswer[]): OutcomeId {
   const highestScore = Math.max(...outcomeOrder.map((outcome) => scores[outcome]));
   const tiedOutcomes = outcomeOrder.filter(
@@ -131,11 +152,7 @@ function selectWinner(scores: ScoreMap, answers: SelectedAnswer[]): OutcomeId {
     return primaryTies[0];
   }
 
-  const recentPrimary = [...answers]
-    .reverse()
-    .find((answer) => primaryTies.includes(answer.primaryOutcome));
-
-  return recentPrimary?.primaryOutcome ?? primaryTies[0] ?? outcomeOrder[0];
+  return selectFingerprintTie(primaryTies, answers);
 }
 
 function quizReducer(state: QuizState, action: QuizAction): QuizState {

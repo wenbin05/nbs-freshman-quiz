@@ -160,29 +160,18 @@ export async function createResultStoryImage(
   context.globalAlpha = 1;
 
   context.fillStyle = "#24568f";
-  context.font = '18px "Silkscreen", monospace';
-  context.textAlign = "center";
-  context.fillText(
-    "CRAFTED WITH CARE BY THE NBS STUDENT CARE TEAM",
-    storyWidth / 2,
-    40,
-  );
-
-  context.font = '30px "Silkscreen", monospace';
-  context.fillText("NBS WELCOME DAY", storyWidth / 2, 78);
-
-  context.fillStyle = "#24568f";
   context.font = '52px "Silkscreen", monospace';
+  context.textAlign = "center";
   drawCenteredLines(
     context,
     "WHAT NBS FRESHMAN ARE YOU?",
     storyWidth / 2,
-    142,
+    92,
     950,
     62,
   );
 
-  roundedRect(context, 158, 218, 764, 62, 31);
+  roundedRect(context, 158, 168, 764, 62, 31);
   context.fillStyle = "#d3e8f9";
   context.fill();
   context.fillStyle = "#24568f";
@@ -190,7 +179,7 @@ export async function createResultStoryImage(
   context.fillText(
     "YOUR CHOICE. YOUR VIBE. YOUR NBS STORY.",
     storyWidth / 2,
-    258,
+    208,
   );
 
   const quizUrl = getPublicQuizUrl("ig-story");
@@ -206,8 +195,8 @@ export async function createResultStoryImage(
     loadImage(resultCardSrc),
     loadImage(qrDataUrl),
   ]);
-  const maxCardWidth = 900;
-  const maxCardHeight = 1020;
+  const maxCardWidth = 960;
+  const maxCardHeight = 1060;
   const scale = Math.min(
     maxCardWidth / resultCard.naturalWidth,
     maxCardHeight / resultCard.naturalHeight,
@@ -215,7 +204,7 @@ export async function createResultStoryImage(
   const cardWidth = resultCard.naturalWidth * scale;
   const cardHeight = resultCard.naturalHeight * scale;
   const cardX = (storyWidth - cardWidth) / 2;
-  const cardY = 330;
+  const cardY = 270;
 
   context.shadowColor = "rgba(31, 61, 98, 0.2)";
   context.shadowBlur = 26;
@@ -223,8 +212,9 @@ export async function createResultStoryImage(
   context.drawImage(resultCard, cardX, cardY, cardWidth, cardHeight);
   context.shadowColor = "transparent";
 
-  const resultPanelY = Math.min(cardY + cardHeight + 30, 1270);
-  roundedRect(context, 90, resultPanelY, 900, 205, 38);
+  const resultPanelY = cardY + cardHeight + 20;
+  const resultPanelHeight = 158;
+  roundedRect(context, 90, resultPanelY, 900, resultPanelHeight, 34);
   context.fillStyle = palette.panel;
   context.fill();
   context.lineWidth = 5;
@@ -232,28 +222,33 @@ export async function createResultStoryImage(
   context.stroke();
 
   context.fillStyle = palette.accent;
-  context.font = '23px "Silkscreen", monospace';
-  context.fillText("MY FRESHMAN TYPE", storyWidth / 2, resultPanelY + 44);
+  context.font = '20px "Silkscreen", monospace';
+  context.fillText("MY FRESHMAN TYPE", storyWidth / 2, resultPanelY + 34);
 
   context.fillStyle = "#173d70";
-  context.font = '40px "Silkscreen", monospace';
+  context.font = '36px "Silkscreen", monospace';
   const nameLineCount = drawCenteredLines(
     context,
     result.name,
     storyWidth / 2,
-    resultPanelY + 92,
+    resultPanelY + 72,
     790,
-    46,
+    40,
   );
 
-  const tagsY = resultPanelY + 106 + nameLineCount * 42;
+  const tagsY = resultPanelY + 82 + nameLineCount * 35;
   const visibleTags = result.tags.slice(0, 3).join("   ");
   context.fillStyle = "#24568f";
-  context.font = '20px "Silkscreen", monospace';
-  context.fillText(visibleTags, storyWidth / 2, Math.min(tagsY, resultPanelY + 178));
+  context.font = '18px "Silkscreen", monospace';
+  context.fillText(
+    visibleTags,
+    storyWidth / 2,
+    Math.min(tagsY, resultPanelY + resultPanelHeight - 20),
+  );
 
-  const supportPanelY = resultPanelY + 223;
-  roundedRect(context, 90, supportPanelY, 900, 188, 34);
+  const supportPanelY = resultPanelY + resultPanelHeight + 16;
+  const supportPanelHeight = 130;
+  roundedRect(context, 90, supportPanelY, 900, supportPanelHeight, 30);
   context.fillStyle = "#ffffff";
   context.fill();
   context.lineWidth = 4;
@@ -261,25 +256,26 @@ export async function createResultStoryImage(
   context.stroke();
 
   context.fillStyle = "#24568f";
-  context.font = '20px "Silkscreen", monospace';
+  context.font = '18px "Silkscreen", monospace';
   context.fillText(
     "A NOTE FROM NBS STUDENT CARE",
     storyWidth / 2,
-    supportPanelY + 40,
+    supportPanelY + 32,
   );
 
   context.fillStyle = "#173d70";
-  context.font = '22px system-ui, sans-serif';
+  context.font = '19px system-ui, sans-serif';
   drawCenteredLines(
     context,
     result.studentCareMessage,
     storyWidth / 2,
-    supportPanelY + 78,
+    supportPanelY + 62,
     800,
-    28,
+    24,
   );
 
-  roundedRect(context, 90, 1706, 900, 166, 34);
+  const quizPanelY = supportPanelY + supportPanelHeight + 16;
+  roundedRect(context, 90, quizPanelY, 900, 148, 30);
   context.fillStyle = "#ffffff";
   context.fill();
   context.lineWidth = 4;
@@ -287,23 +283,26 @@ export async function createResultStoryImage(
   context.stroke();
 
   context.fillStyle = "#24568f";
-  context.font = '28px "Silkscreen", monospace';
+  context.font = '19px "Silkscreen", monospace';
   context.textAlign = "left";
-  context.fillText("DISCOVER YOUR NBS TYPE", 132, 1762);
-  context.font = '22px "Silkscreen", monospace';
-  context.fillText("SCAN TO TAKE THE QUIZ", 132, 1808);
+  context.fillText("INTERESTED IN KNOWING YOUR", 132, quizPanelY + 40);
+  context.fillText("NBS FRESHMEN TYPE?", 132, quizPanelY + 70);
   context.font = '18px "Silkscreen", monospace';
-  context.fillText("freshman-quiz.vercel.app", 132, 1848);
+  context.fillText(
+    "SCAN THE QR CODE TO TAKE THE QUIZ",
+    132,
+    quizPanelY + 110,
+  );
 
-  context.drawImage(qrCode, 810, 1717, 138, 138);
+  context.drawImage(qrCode, 824, quizPanelY + 18, 112, 112);
 
   context.fillStyle = "#24568f";
-  context.font = '21px "Silkscreen", monospace';
+  context.font = '17px "Silkscreen", monospace';
   context.textAlign = "center";
   context.fillText(
-    `${result.tags[0] ?? "#NBSFreshman"}  #NBSWelcomeDay`,
+    "CRAFTED WITH CARE BY THE NBS STUDENT CARE TEAM",
     storyWidth / 2,
-    1904,
+    quizPanelY + 188,
   );
 
   return canvasToBlob(canvas);

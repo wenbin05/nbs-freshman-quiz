@@ -91,7 +91,25 @@ if (Math.max(...primaryValues) - Math.min(...primaryValues) > 1) {
   failures.push("Primary outcome opportunities differ by more than one.");
 }
 
-function selectWinner(scores, primaryAnswers) {
+function selectFingerprintTie(tiedOutcomes, answers) {
+  let fingerprint = 2166136261;
+
+  for (const answer of answers) {
+    const token = `${answer.questionId}:${answer.optionId}`;
+    for (let index = 0; index < token.length; index += 1) {
+      fingerprint ^= token.charCodeAt(index);
+      fingerprint = Math.imul(fingerprint, 16777619);
+    }
+  }
+
+  return (
+    tiedOutcomes[(fingerprint >>> 0) % tiedOutcomes.length] ??
+    tiedOutcomes[0] ??
+    outcomeOrder[0]
+  );
+}
+
+function selectWinner(scores, answers) {
   const highestScore = Math.max(
     ...outcomeOrder.map((outcome) => scores[outcome]),
   );
@@ -105,7 +123,7 @@ function selectWinner(scores, primaryAnswers) {
 
   const primaryResultCounts = tiedOutcomes.map((outcome) => ({
     outcome,
-    count: primaryAnswers.filter((answer) => answer === outcome).length,
+    count: answers.filter((answer) => answer.primaryOutcome === outcome).length,
   }));
   const strongestPrimary = primaryResultCounts.reduce((strongest, candidate) =>
     candidate.count * primaryCounts[strongest.outcome] >
@@ -125,11 +143,7 @@ function selectWinner(scores, primaryAnswers) {
     return primaryTies[0];
   }
 
-  const recentPrimary = [...primaryAnswers]
-    .reverse()
-    .find((outcome) => primaryTies.includes(outcome));
-
-  return recentPrimary ?? primaryTies[0] ?? outcomeOrder[0];
+  return selectFingerprintTie(primaryTies, answers);
 }
 
 const winnerCounts = Object.fromEntries(
@@ -138,12 +152,23 @@ const winnerCounts = Object.fromEntries(
 const workingScores = Object.fromEntries(
   outcomeOrder.map((outcome) => [outcome, 0]),
 );
-const primaryAnswers = [];
+const answers = [];
 let combinationCount = 0;
+let tiedPathCount = 0;
 
 function evaluatePaths(questionIndex) {
   if (questionIndex === quizQuestions.length) {
-    winnerCounts[selectWinner(workingScores, primaryAnswers)] += 1;
+    const highestScore = Math.max(
+      ...outcomeOrder.map((outcome) => workingScores[outcome]),
+    );
+    if (
+      outcomeOrder.filter(
+        (outcome) => workingScores[outcome] === highestScore,
+      ).length > 1
+    ) {
+      tiedPathCount += 1;
+    }
+    winnerCounts[selectWinner(workingScores, answers)] += 1;
     combinationCount += 1;
     return;
   }
@@ -152,11 +177,15 @@ function evaluatePaths(questionIndex) {
     for (const outcome of outcomeOrder) {
       workingScores[outcome] += option.weights[outcome] ?? 0;
     }
-    primaryAnswers.push(option.primaryOutcome);
+    answers.push({
+      optionId: option.id,
+      primaryOutcome: option.primaryOutcome,
+      questionId: quizQuestions[questionIndex].id,
+    });
 
     evaluatePaths(questionIndex + 1);
 
-    primaryAnswers.pop();
+    answers.pop();
     for (const outcome of outcomeOrder) {
       workingScores[outcome] -= option.weights[outcome] ?? 0;
     }
@@ -175,9 +204,9 @@ const winnerRateValues = Object.values(winnerRates);
 const winnerRateSpread =
   Math.max(...winnerRateValues) - Math.min(...winnerRateValues);
 
-if (winnerRateSpread > 3) {
+if (winnerRateSpread > 1.5) {
   failures.push(
-    `The exhaustive winner-rate spread is ${winnerRateSpread.toFixed(2)} percentage points; expected no more than 3.`,
+    `The exhaustive winner-rate spread is ${winnerRateSpread.toFixed(2)} percentage points; expected no more than 1.5.`,
   );
 }
 
@@ -201,5 +230,8 @@ if (failures.length > 0) {
   );
   console.log(
     `Checked all ${combinationCount.toLocaleString()} answer paths; winner-rate spread is ${winnerRateSpread.toFixed(2)} percentage points.`,
+  );
+  console.log(
+    `${((tiedPathCount / combinationCount) * 100).toFixed(2)}% of paths required the choice-dependent tie-break fallback.`,
   );
 }
