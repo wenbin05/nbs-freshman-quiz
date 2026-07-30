@@ -13,7 +13,8 @@ const transpiled = ts.transpileModule(source, {
 const moduleUrl = `data:text/javascript;base64,${Buffer.from(transpiled).toString("base64")}`;
 const { outcomeOrder, quizQuestions } = await import(moduleUrl);
 
-const OPTION_TOTAL = 3;
+const OPTION_TOTAL = 6;
+const MINIMUM_PRIMARY_WEIGHT = 4;
 const totalScoreMass = quizQuestions.reduce(
   (total, question) =>
     total +
@@ -58,9 +59,12 @@ for (const question of quizQuestions) {
       );
     }
 
-    if ((option.weights[option.primaryOutcome] ?? 0) !== 2) {
+    if (
+      (option.weights[option.primaryOutcome] ?? 0) <
+      MINIMUM_PRIMARY_WEIGHT
+    ) {
       failures.push(
-        `${question.id} option ${option.id} does not award 2 points to its primary outcome.`,
+        `${question.id} option ${option.id} awards fewer than ${MINIMUM_PRIMARY_WEIGHT} points to its primary outcome.`,
       );
     }
 

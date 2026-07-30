@@ -209,7 +209,7 @@ const sketchPreludeSteps: SketchPreludeStep[] = [
     eyebrow: "First Week",
     foreground: "img_3687.png",
     kind: "story",
-    tone: "arrival",
+    tone: "flicker",
   },
   {
     autoAdvanceMs: 2500,
@@ -797,7 +797,6 @@ function getSketchNotices(
   if (questionId === "finding-your-class" && beatIndex === 0) {
     return [
       {
-        advanceOnClose: true,
         art: "popup-navigation.png",
         body: "Attend your first class.",
         key: "navigation-challenge",
@@ -1394,7 +1393,9 @@ function SketchQuestionScreen({
   const [beatIndex, setBeatIndex] = useState(0);
   const [optionsVisible, setOptionsVisible] = useState(false);
   const [groupChatOpen, setGroupChatOpen] = useState(false);
-  const [noticeSequenceStarted, setNoticeSequenceStarted] = useState(false);
+  const [noticeSequenceStarted, setNoticeSequenceStarted] = useState(
+    question.id === "finding-your-class",
+  );
   const [acknowledgedNoticeKeys, setAcknowledgedNoticeKeys] = useState<
     string[]
   >([]);
@@ -1464,14 +1465,16 @@ function SketchQuestionScreen({
     setBeatIndex(0);
     setOptionsVisible(false);
     setGroupChatOpen(false);
-    setNoticeSequenceStarted(false);
+    setNoticeSequenceStarted(question.id === "finding-your-class");
     setAcknowledgedNoticeKeys([]);
     playSketchSceneSound(currentIndex);
   }, [currentIndex, question.id]);
 
   useEffect(() => {
     setAcknowledgedNoticeKeys([]);
-    setNoticeSequenceStarted(false);
+    setNoticeSequenceStarted(
+      question.id === "finding-your-class" && beatIndex === 0,
+    );
   }, [beatIndex, question.id]);
 
   useEffect(() => {

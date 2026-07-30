@@ -7380,23 +7380,6 @@ button.sketch-system-notice .sketch-system-notice-card small {
 }
 
 /* Final event pacing and mobile readability pass */
-.sketch-phase-start .sketch-mobile-art.is-start-art::after {
-  animation: sketchStartLightFlicker 4.4s steps(1, end) infinite;
-  background:
-    linear-gradient(
-      105deg,
-      transparent 0 34%,
-      rgba(255, 250, 211, 0.2) 45%,
-      transparent 58%
-    ),
-    rgba(255, 249, 220, 0.08);
-  content: "";
-  inset: 0;
-  pointer-events: none;
-  position: absolute;
-  z-index: 3;
-}
-
 .sketch-system-notice {
   animation-duration: var(--notice-duration, 3000ms);
 }
@@ -7463,30 +7446,6 @@ button.sketch-system-notice .sketch-system-notice-card small {
   .sketch-system-notice.has-custom-card .sketch-system-notice-card {
     padding-inline: 16px;
     width: 92%;
-  }
-}
-
-@keyframes sketchStartLightFlicker {
-  0%,
-  16%,
-  19%,
-  48%,
-  53%,
-  82%,
-  100% {
-    opacity: 0.2;
-  }
-  17%,
-  18%,
-  49%,
-  52% {
-    opacity: 0.7;
-  }
-  83% {
-    opacity: 0.48;
-  }
-  84% {
-    opacity: 0.08;
   }
 }
 
