@@ -108,6 +108,7 @@ const startLayers = ["img_3686.png"];
 const resultLayers = ["img_3713.png"];
 const calculationDelayMs = 1900;
 const optionRevealDelayMs = 180;
+const resultDesignerHeading = `${mobileDraftAsset}result-heading.png`;
 const resultDesignerCards: Record<OutcomeId, string> = {
   lostButVibing: `${mobileDraftAsset}result-lost-but-vibing-clear.png`,
   lowkeyStrategist: `${mobileDraftAsset}result-quiet-grinder-clear.png`,
@@ -1949,8 +1950,11 @@ function SketchResultScreen({
           Crafted with care by the NBS Student Care Team
         </p>
         <header className="sketch-result-heading">
-          <h1>What NBS Freshman Are You?</h1>
-          <p>Your choice. Your vibe. Your NBS story.</p>
+          <img
+            alt="What NBS Freshman Are You? Your choice. Your vibe. Your NBS story."
+            className="sketch-result-heading-art"
+            src={resultDesignerHeading}
+          />
         </header>
         <img
           alt={`${cleanText(result.name)} personality result card`}

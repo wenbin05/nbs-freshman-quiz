@@ -479,12 +479,12 @@ export const resultProfiles: Record<OutcomeId, ResultProfile> = {
   },
   lostButVibing: {
     id: "lostButVibing",
-    name: "The Lost but Vibing",
+    name: "The Chill Explorer",
     motto: "I'll figure it out... eventually.",
     traits: ["Chill", "Adaptable", "Go-with-the-flow"],
-    tags: ["#JustVibing", "#ItIsWhatItIs", "#NoThoughtsHeadEmpty"],
+    tags: ["#JustVibing", "#SideQuesting", "#FiguringItOut"],
     profile:
-      "Do you fully know what's going on? Not really. But are you surviving? Yes. You take things as they come, somehow making it through chaos with vibes alone. Directions? Unclear. Deadlines? Flexible in your mind. But you always land on your feet eventually.",
+      "You're here to explore, try new things, and figure out what clicks. You might not have everything mapped out yet, but you're open to experiences, from CCAs to new friendships to random campus detours. You believe things will fall into place as you go, and honestly? That's part of the journey.",
     wellbeingTips: [
       "A little structure can go a long way.",
       "Ask for help earlier, not at 2am.",
@@ -512,9 +512,9 @@ export const resultProfiles: Record<OutcomeId, ResultProfile> = {
   weBallAgent: {
     id: "weBallAgent",
     name: "The \"We Ball\" Agent",
-    motto: "No plan.",
+    motto: "No plan, just whack.",
     traits: ["Spontaneous", "Chaotic", "Bold"],
-    tags: ["#LastMinuteGod", "#ChaosEnergy", "#WeBall"],
+    tags: ["#LivingLifeOnTheEdge", "#ChaosEnergy", "#WeBall"],
     profile:
       "You operate on pure instinct. Deadlines? Negotiable. Plans? Optional. Somehow, everything always works out for you, even if it's at the last possible second. You bring chaos, but also unmatched energy to every situation.",
     wellbeingTips: [

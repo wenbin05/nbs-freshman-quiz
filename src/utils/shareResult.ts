@@ -4,6 +4,7 @@ import { getPublicQuizUrl } from "./quizUrl";
 
 const storyWidth = 1080;
 const storyHeight = 1920;
+const resultHeadingSrc = "/assets/mobile-draft-3/result-heading.png";
 
 const resultPalette: Record<
   ResultProfile["id"],
@@ -158,29 +159,7 @@ export async function createResultStoryImage(
     }
   }
   context.globalAlpha = 1;
-
-  context.fillStyle = "#24568f";
-  context.font = '52px "Silkscreen", monospace';
   context.textAlign = "center";
-  drawCenteredLines(
-    context,
-    "WHAT NBS FRESHMAN ARE YOU?",
-    storyWidth / 2,
-    92,
-    950,
-    62,
-  );
-
-  roundedRect(context, 158, 168, 764, 62, 31);
-  context.fillStyle = "#d3e8f9";
-  context.fill();
-  context.fillStyle = "#24568f";
-  context.font = '24px "Silkscreen", monospace';
-  context.fillText(
-    "YOUR CHOICE. YOUR VIBE. YOUR NBS STORY.",
-    storyWidth / 2,
-    208,
-  );
 
   const quizUrl = getPublicQuizUrl("ig-story");
   const qrDataUrl = await QRCode.toDataURL(quizUrl, {
@@ -191,10 +170,21 @@ export async function createResultStoryImage(
     margin: 1,
     width: 220,
   });
-  const [resultCard, qrCode] = await Promise.all([
+  const [resultHeading, resultCard, qrCode] = await Promise.all([
+    loadImage(resultHeadingSrc),
     loadImage(resultCardSrc),
     loadImage(qrDataUrl),
   ]);
+  const headingWidth = 950;
+  const headingHeight =
+    headingWidth * (resultHeading.naturalHeight / resultHeading.naturalWidth);
+  context.drawImage(
+    resultHeading,
+    (storyWidth - headingWidth) / 2,
+    78,
+    headingWidth,
+    headingHeight,
+  );
   const maxCardWidth = 960;
   const maxCardHeight = 1060;
   const scale = Math.min(
@@ -264,14 +254,14 @@ export async function createResultStoryImage(
   );
 
   context.fillStyle = "#173d70";
-  context.font = '19px system-ui, sans-serif';
+  context.font = '18px system-ui, sans-serif';
   drawCenteredLines(
     context,
     result.studentCareMessage,
     storyWidth / 2,
     supportPanelY + 62,
-    800,
-    24,
+    790,
+    23,
   );
 
   const quizPanelY = supportPanelY + supportPanelHeight + 16;

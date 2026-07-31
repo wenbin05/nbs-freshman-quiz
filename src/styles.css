@@ -5861,33 +5861,17 @@ body.is-threat-shaking .game-shell {
 
 .sketch-result-heading {
   display: grid;
-  gap: 8px;
   margin: 0 auto 2px;
-  max-width: 470px;
+  max-width: 500px;
   text-align: center;
   width: 100%;
 }
 
-.sketch-result-heading h1 {
-  color: #285a91;
-  font-family: "Silkscreen", "Courier New", monospace;
-  font-size: clamp(1rem, 4.4cqw, 1.42rem);
-  font-weight: 400;
-  line-height: 1.2;
-  margin: 0;
-  text-transform: uppercase;
-}
-
-.sketch-result-heading p {
-  background: #cfe5f8;
-  border-radius: 999px;
-  color: #285a91;
-  font-family: "Silkscreen", "Courier New", monospace;
-  font-size: clamp(0.54rem, 2.25cqw, 0.7rem);
-  line-height: 1.35;
-  margin: 0;
-  padding: 8px 12px;
-  text-transform: uppercase;
+.sketch-result-heading-art {
+  display: block;
+  height: auto;
+  margin: 0 auto;
+  width: 100%;
 }
 
 .sketch-result-designer-card {
